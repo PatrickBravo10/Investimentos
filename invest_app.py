@@ -4,13 +4,13 @@ import plotly.graph_objects as go
 import streamlit_authenticator as stauth
 from sqlalchemy import text
 
-# --- CONFIGURAÇÃO ---
+# --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Gestor Financeiro PRO", layout="wide")
 
-# Conexão com Supabase SQL
+# Conexão com Supabase SQL (PostgreSQL)
 conn = st.connection("postgresql", type="sql")
 
-# LOGIN CONFIG
+# --- SISTEMA DE LOGIN ---
 names = ["Usuario Teste"]
 usernames = ["admin"]
 passwords = ["12345"]
@@ -22,9 +22,10 @@ authenticator = stauth.Authenticate(
 
 authenticator.login(location="main")
 
+# --- APP PRINCIPAL ---
 if st.session_state["authentication_status"]:
     
-    # 1. CARREGAR DADOS
+    # 1. CARREGAR DADOS DO BANCO
     try:
         df_ativos = conn.query("SELECT tipo, nome, valor_atual, aporte_mensal, juros_mensal FROM ativos", ttl=0)
         df_config = conn.query("SELECT valor_meta, tempo_anos FROM config WHERE id = 1", ttl=0)
@@ -35,9 +36,11 @@ if st.session_state["authentication_status"]:
         else:
             meta_inicial, tempo_inicial = 100000.0, 10
     except Exception:
+        # Fallback se as tabelas estiverem vazias ou com erro
         df_ativos = pd.DataFrame(columns=["tipo", "nome", "valor_atual", "aporte_mensal", "juros_mensal"])
         meta_inicial, tempo_inicial = 100000.0, 10
 
+    # --- SIDEBAR (METAS E SALVAMENTO) ---
     with st.sidebar:
         st.header("🎯 Meta Principal")
         valor_meta = st.number_input("Objetivo Final (R$)", min_value=1.0, value=meta_inicial)
@@ -47,17 +50,24 @@ if st.session_state["authentication_status"]:
         if st.button("💾 Salvar no Banco SQL"):
             try:
                 with conn.session as s:
-                    # Limpa e atualiza ativos
+                    # 1. Limpar e atualizar ativos
                     s.execute(text("DELETE FROM ativos"))
                     for _, row in df_ativos.iterrows():
                         s.execute(
                             text("INSERT INTO ativos (tipo, nome, valor_atual, aporte_mensal, juros_mensal) VALUES (:t, :n, :v, :a, :j)"),
-                            params=dict(t=row.tipo, n=row.nome, v=row.valor_atual, a=row.aporte_mensal, j=row.juros_mensal)
+                            {"t": row.tipo, "n": row.nome, "v": row.valor_atual, "a": row.aporte_mensal, "j": row.juros_mensal}
                         )
-                    # Atualiza meta (id=1 sempre)
+                    
+                    # 2. Atualizar meta (Upsert para ID=1)
                     s.execute(
-                        text("INSERT INTO config (id, valor_meta, tempo_anos) VALUES (1, :m, :t) ON CONFLICT (id) DO UPDATE SET valor_meta = EXCLUDED.valor_meta, tempo_anos = EXCLUDED.tempo_anos"),
-                        params=dict(m=valor_meta, t=tempo_anos)
+                        text("""
+                            INSERT INTO config (id, valor_meta, tempo_anos) 
+                            VALUES (1, :m, :t) 
+                            ON CONFLICT (id) DO UPDATE SET 
+                            valor_meta = EXCLUDED.valor_meta, 
+                            tempo_anos = EXCLUDED.tempo_anos
+                        """),
+                        {"m": valor_meta, "t": tempo_anos}
                     )
                     s.commit()
                 st.success("Dados salvos com sucesso!")
@@ -68,15 +78,16 @@ if st.session_state["authentication_status"]:
         st.markdown("---")
         authenticator.logout("Sair", "sidebar")
 
+    # --- CORPO DO APP ---
     st.title("📊 Gestor Financeiro (PostgreSQL)")
 
     # 2. EDITOR DE TABELA
     st.subheader("📝 Seus Investimentos")
     df_ativos = st.data_editor(df_ativos, num_rows="dynamic", use_container_width=True)
 
-    # --- 3. CÁLCULOS ---
+    # --- 3. CÁLCULOS DE PROJEÇÃO ---
     if not df_ativos.empty:
-        # Garantir que são números e limpar nulos
+        # Limpeza de dados para garantir números
         for col in ["valor_atual", "aporte_mensal", "juros_mensal"]:
             df_ativos[col] = pd.to_numeric(df_ativos[col], errors='coerce').fillna(0)
 
@@ -93,13 +104,13 @@ if st.session_state["authentication_status"]:
                 evolucao_total[m] += val_m
                 val_ant = val_m
 
-        # --- 4. DASHBOARD ---
+        # --- 4. DASHBOARD VISUAL ---
         st.markdown("---")
         m1, m2, m3 = st.columns(3)
         m1.metric("Total Hoje", f"R$ {total_atual:,.2f}")
         m2.metric(f"Em {tempo_anos} anos", f"R$ {evolucao_total[-1]:,.2f}")
         prog = (total_atual/valor_meta)*100 if valor_meta > 0 else 0
-        m3.metric("Progresso", f"{prog:.1f}%")
+        m3.metric("Progresso da Meta", f"{prog:.1f}%")
         
         col1, col2 = st.columns(2)
         with col1:
@@ -107,11 +118,10 @@ if st.session_state["authentication_status"]:
         with col2:
             fig_evol = go.Figure()
             fig_evol.add_trace(go.Scatter(y=evolucao_total, line=dict(color='#00ff00', width=3), name="Evolução"))
-            fig_evol.add_hline(y=valor_meta, line_dash="dash", line_color="red", annotation_text="Sua Meta")
-            fig_evol.update_layout(xaxis_title="Meses", yaxis_title="R$")
+            fig_evol.add_hline(y=valor_meta, line_dash="dash", line_color="red", annotation_text="Meta")
             st.plotly_chart(fig_evol, use_container_width=True)
 
 elif st.session_state["authentication_status"] is False:
-    st.error("Erro de login")
+    st.error("Usuário ou senha incorretos")
 elif st.session_state["authentication_status"] is None:
-    st.warning("Insira usuário e senha")
+    st.warning("Por favor, insira usuário e senha")
