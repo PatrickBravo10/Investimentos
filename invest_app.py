@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit_authenticator as stauth
+from sqlalchemy import text
 
 # --- CONFIGURAÇÃO ---
 st.set_page_config(page_title="Gestor Financeiro PRO", layout="wide")
@@ -47,19 +48,19 @@ if st.session_state["authentication_status"]:
             try:
                 with conn.session as s:
                     # Limpa e atualiza ativos
-                    s.execute(st.text("DELETE FROM ativos"))
+                    s.execute(text("DELETE FROM ativos"))
                     for _, row in df_ativos.iterrows():
                         s.execute(
-                            st.text("INSERT INTO ativos (tipo, nome, valor_atual, aporte_mensal, juros_mensal) VALUES (:t, :n, :v, :a, :j)"),
+                            text("INSERT INTO ativos (tipo, nome, valor_atual, aporte_mensal, juros_mensal) VALUES (:t, :n, :v, :a, :j)"),
                             params=dict(t=row.tipo, n=row.nome, v=row.valor_atual, a=row.aporte_mensal, j=row.juros_mensal)
                         )
                     # Atualiza meta (id=1 sempre)
                     s.execute(
-                        st.text("INSERT INTO config (id, valor_meta, tempo_anos) VALUES (1, :m, :t) ON CONFLICT (id) DO UPDATE SET valor_meta = EXCLUDED.valor_meta, tempo_anos = EXCLUDED.tempo_anos"),
+                        text("INSERT INTO config (id, valor_meta, tempo_anos) VALUES (1, :m, :t) ON CONFLICT (id) DO UPDATE SET valor_meta = EXCLUDED.valor_meta, tempo_anos = EXCLUDED.tempo_anos"),
                         params=dict(m=valor_meta, t=tempo_anos)
                     )
                     s.commit()
-                st.success("Dados salvos no Supabase!")
+                st.success("Dados salvos com sucesso!")
                 st.balloons()
             except Exception as e:
                 st.error(f"Erro ao salvar: {e}")
@@ -75,6 +76,7 @@ if st.session_state["authentication_status"]:
 
     # --- 3. CÁLCULOS ---
     if not df_ativos.empty:
+        # Garantir que são números e limpar nulos
         for col in ["valor_atual", "aporte_mensal", "juros_mensal"]:
             df_ativos[col] = pd.to_numeric(df_ativos[col], errors='coerce').fillna(0)
 
@@ -83,7 +85,7 @@ if st.session_state["authentication_status"]:
         evolucao_total = [0.0] * (meses + 1)
         
         for _, row in df_ativos.iterrows():
-            v, a, j = row["valor_atual"], row["aporte_mensal"], row["juros_mensal"] / 100
+            v, a, j = row["valor_atual"], row["aporte_mensal"], (row["juros_mensal"] / 100)
             val_ant = v
             for m in range(meses + 1):
                 if m == 0: val_m = v
@@ -92,6 +94,7 @@ if st.session_state["authentication_status"]:
                 val_ant = val_m
 
         # --- 4. DASHBOARD ---
+        st.markdown("---")
         m1, m2, m3 = st.columns(3)
         m1.metric("Total Hoje", f"R$ {total_atual:,.2f}")
         m2.metric(f"Em {tempo_anos} anos", f"R$ {evolucao_total[-1]:,.2f}")
@@ -103,9 +106,12 @@ if st.session_state["authentication_status"]:
             st.plotly_chart(go.Figure(data=[go.Pie(labels=df_ativos["nome"], values=df_ativos["valor_atual"], hole=.4)]), use_container_width=True)
         with col2:
             fig_evol = go.Figure()
-            fig_evol.add_trace(go.Scatter(y=evolucao_total, line=dict(color='#00ff00')))
-            fig_evol.add_hline(y=valor_meta, line_dash="dash", line_color="red")
+            fig_evol.add_trace(go.Scatter(y=evolucao_total, line=dict(color='#00ff00', width=3), name="Evolução"))
+            fig_evol.add_hline(y=valor_meta, line_dash="dash", line_color="red", annotation_text="Sua Meta")
+            fig_evol.update_layout(xaxis_title="Meses", yaxis_title="R$")
             st.plotly_chart(fig_evol, use_container_width=True)
 
 elif st.session_state["authentication_status"] is False:
     st.error("Erro de login")
+elif st.session_state["authentication_status"] is None:
+    st.warning("Insira usuário e senha")
