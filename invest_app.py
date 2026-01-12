@@ -1,117 +1,78 @@
 import streamlit as st
 import pandas as pd
-import plotly.graph_objects as go
-import streamlit_authenticator as stauth
-from sqlalchemy import text
+import requests
+import base64
+import json
+from io import StringIO
 
-# --- CONFIGURAÇÃO DA PÁGINA ---
-st.set_page_config(page_title="Gestor Financeiro PRO", layout="wide")
+# --- CONFIGURAÇÃO ---
+st.set_page_config(page_title="Gestor Financeiro GitHub", layout="wide")
 
-# Conexão robusta com o banco (Neon SQL)
-conn = st.connection("postgresql", type="sql")
+# Pegando as chaves dos Secrets
+GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
+REPO_NAME = st.secrets["REPO_NAME"]
+FILE_PATH = "dados.csv"
+URL = f"https://api.github.com/repos/{REPO_NAME}/contents/{FILE_PATH}"
 
-# --- SISTEMA DE LOGIN ---
-names = ["Usuario Teste"]
-usernames = ["admin"]
-passwords = ["12345"]
+# Função para buscar dados do GitHub
+def get_data_from_github():
+    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+    response = requests.get(URL, headers=headers)
+    if response.status_code == 200:
+        content = response.json()
+        decoded_data = base64.b64decode(content['content']).decode('utf-8')
+        df = pd.read_csv(StringIO(decoded_data))
+        return df, content['sha']
+    else:
+        # Se o arquivo não existir ou der erro, cria um padrão
+        df_vazio = pd.DataFrame(columns=["tipo", "nome", "valor_atual", "aporte_mensal", "juros_mensal"])
+        return df_vazio, None
 
-authenticator = stauth.Authenticate(
-    {"usernames": {usernames[0]: {"name": names[0], "password": passwords[0]}}},
-    "cookie_invest", "key_invest", cookie_expiry_days=30
-)
-
-authenticator.login(location="main")
-
-# --- APP PRINCIPAL ---
-if st.session_state["authentication_status"]:
+# Função para salvar dados no GitHub
+def save_to_github(df, sha):
+    csv_content = df.to_csv(index=False)
+    encoded_content = base64.b64encode(csv_content.encode('utf-8')).decode('utf-8')
     
-    # 1. CARREGAR DADOS DO BANCO
-    try:
-        # ttl=0 garante que ele busque dados novos toda vez
-        df_ativos = conn.query("SELECT tipo, nome, valor_atual, aporte_mensal, juros_mensal FROM ativos", ttl=0)
-        df_config = conn.query("SELECT valor_meta, tempo_anos FROM config WHERE id = 1", ttl=0)
-        
-        if not df_config.empty:
-            meta_inicial = float(df_config["valor_meta"].iloc[0])
-            tempo_inicial = int(df_config["tempo_anos"].iloc[0])
-        else:
-            meta_inicial, tempo_inicial = 100000.0, 10
-    except Exception:
-        # Fallback se as tabelas ainda não existirem
-        df_ativos = pd.DataFrame(columns=["tipo", "nome", "valor_atual", "aporte_mensal", "juros_mensal"])
-        meta_inicial, tempo_inicial = 100000.0, 10
+    payload = {
+        "message": "Atualizando dados de investimentos via Streamlit",
+        "content": encoded_content,
+        "sha": sha
+    }
+    
+    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+    response = requests.put(URL, headers=headers, data=json.dumps(payload))
+    return response.status_code
 
-    # --- SIDEBAR ---
-    with st.sidebar:
-        st.header("🎯 Metas")
-        valor_meta = st.number_input("Objetivo Final (R$)", min_value=1.0, value=meta_inicial)
-        tempo_anos = st.slider("Prazo (Anos)", 1, 40, value=tempo_inicial)
-        
-        st.markdown("---")
-        if st.button("💾 Salvar no Neon SQL"):
-            try:
-                with conn.session as s:
-                    # Criação automática das tabelas
-                    s.execute(text("""
-                        CREATE TABLE IF NOT EXISTS ativos (
-                            tipo TEXT, nome TEXT, valor_atual FLOAT, 
-                            aporte_mensal FLOAT, juros_mensal FLOAT
-                        )
-                    """))
-                    s.execute(text("""
-                        CREATE TABLE IF NOT EXISTS config (
-                            id INT PRIMARY KEY, valor_meta FLOAT, tempo_anos INT
-                        )
-                    """))
-                    
-                    # Limpa e reinsere os ativos
-                    s.execute(text("DELETE FROM ativos"))
-                    for _, row in df_ativos.iterrows():
-                        s.execute(
-                            text("INSERT INTO ativos (tipo, nome, valor_atual, aporte_mensal, juros_mensal) VALUES (:t, :n, :v, :a, :j)"),
-                            {"t": row.tipo, "n": row.nome, "v": row.valor_atual, "a": row.aporte_mensal, "j": row.juros_mensal}
-                        )
-                    
-                    # Atualiza a meta (Upsert)
-                    s.execute(
-                        text("""
-                            INSERT INTO config (id, valor_meta, tempo_anos) VALUES (1, :m, :t) 
-                            ON CONFLICT (id) DO UPDATE SET valor_meta = EXCLUDED.valor_meta, tempo_anos = EXCLUDED.tempo_anos
-                        """),
-                        {"m": valor_meta, "t": tempo_anos}
-                    )
-                    s.commit()
-                st.success("Dados salvos com sucesso!")
+# --- INTERFACE DO APP ---
+st.title("📊 Gestor Financeiro (Sincronizado com GitHub)")
+
+# Carregamento inicial
+df, current_sha = get_data_from_github()
+
+st.subheader("📝 Seus Investimentos")
+st.info("Dica: Adicione ou edite as linhas abaixo e clique em Salvar.")
+
+# Editor de tabela
+df_editado = st.data_editor(df, num_rows="dynamic", use_container_width=True)
+
+# Botão de Salvar
+if st.button("💾 Salvar e Sincronizar"):
+    if current_sha is None:
+        st.error("Erro: O arquivo dados.csv não foi encontrado no GitHub. Crie-o primeiro!")
+    else:
+        with st.spinner("Enviando dados para o repositório..."):
+            status = save_to_github(df_editado, current_sha)
+            if status in [200, 201]:
+                st.success("Dados salvos com sucesso no seu GitHub!")
                 st.balloons()
-            except Exception as e:
-                st.error(f"Erro ao salvar: {e}")
-        
-        st.markdown("---")
-        authenticator.logout("Sair", "sidebar")
+                st.rerun()
+            else:
+                st.error(f"Erro ao salvar. Código: {status}")
 
-    # --- INTERFACE PRINCIPAL ---
-    st.title("📊 Gestor Financeiro")
-
-    # Tabela editável
-    st.subheader("📝 Meus Ativos")
-    df_ativos = st.data_editor(df_ativos, num_rows="dynamic", use_container_width=True)
-
-    # Cálculos rápidos
-    if not df_ativos.empty:
-        # Garante que os valores são numéricos
-        for col in ["valor_atual", "aporte_mensal", "juros_mensal"]:
-            df_ativos[col] = pd.to_numeric(df_ativos[col], errors='coerce').fillna(0)
-
-        total_atual = df_ativos["valor_atual"].sum()
-        
-        st.markdown("---")
-        c1, c2 = st.columns(2)
-        c1.metric("Patrimônio Atual", f"R$ {total_atual:,.2f}")
-        c2.metric("Meta Objetivo", f"R$ {valor_meta:,.2f}")
-        
-        # Gráfico Simples
-        fig = go.Figure(data=[go.Pie(labels=df_ativos["nome"], values=df_ativos["valor_atual"], hole=.3)])
-        st.plotly_chart(fig, use_container_width=True)
-
-elif st.session_state["authentication_status"] is False:
-    st.error("Login inválido.")
+# Dashboard Simples
+if not df_editado.empty:
+    st.markdown("---")
+    # Converte para numérico para evitar erros de soma
+    df_editado["valor_atual"] = pd.to_numeric(df_editado["valor_atual"], errors='coerce').fillna(0)
+    total_total = df_editado["valor_atual"].sum()
+    st.metric("Patrimônio Total Armazenado", f"R$ {total_total:,.2f}")
