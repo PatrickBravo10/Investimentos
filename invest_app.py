@@ -9,7 +9,7 @@ from io import StringIO
 from datetime import datetime
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
-st.set_page_config(page_title="Gestor Financeiro Multimoedas", layout="wide")
+st.set_page_config(page_title="Gestor Financeiro Global", layout="wide")
 
 # --- FUNÇÃO PARA PEGAR O DÓLAR EM TEMPO REAL ---
 def get_dollar_rate():
@@ -20,7 +20,7 @@ def get_dollar_rate():
         data_hora = res["USDBRL"]["create_date"]
         return cotacao, data_hora
     except:
-        return 5.0, "Erro ao buscar cotação"
+        return 5.50, "Cotação padrão (Erro API)"
 
 # --- CONFIGURAÇÕES DO GITHUB (SECRETS) ---
 GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
@@ -66,8 +66,10 @@ if st.session_state["authentication_status"]:
 
     if csv_data:
         df_ativos = pd.read_csv(StringIO(csv_data))
+        # --- CORREÇÃO DO ERRO AQUI: Garantir que a coluna 'origem' exista ---
+        if "origem" not in df_ativos.columns:
+            df_ativos.insert(0, "origem", "B3") # Adiciona na primeira posição
     else:
-        # Adicionado coluna 'origem'
         df_ativos = pd.DataFrame(columns=["origem", "tipo", "nome", "valor_atual", "aporte_mensal", "juros_mensal"])
 
     if metas_csv_data:
@@ -80,21 +82,20 @@ if st.session_state["authentication_status"]:
     # --- CORPO PRINCIPAL ---
     st.title("📊 Gestor Financeiro Global")
     
-    # Exibir cotação do dólar no topo
-    st.info(f"💵 **Cotação Dólar:** R$ {dolar_hoje:.2f} | **Última atualização:** {data_dolar}")
+    st.info(f"💵 **Cotação Dólar:** R$ {dolar_hoje:.2f} | **Atualização:** {data_dolar}")
 
     st.subheader("📝 Gerenciar Carteira")
     # Tabela editável
     df_editado = st.data_editor(df_ativos, num_rows="dynamic", use_container_width=True)
 
-    # --- LÓGICA DE CÁLCULO DO VALOR EFETIVO ---
-    # Convertemos colunas para números para evitar erros
+    # --- LÓGICA DE CÁLCULO ---
     for col in ["valor_atual", "aporte_mensal", "juros_mensal"]:
         df_editado[col] = pd.to_numeric(df_editado[col], errors='coerce').fillna(0)
 
-    # Criamos a coluna de Valor Efetivo baseada na Origem
+    # Função de cálculo agora protegida contra erro de nome
     def calcular_efetivo(row):
-        if str(row["origem"]).strip().lower() == "avenue":
+        origem = str(row.get("origem", "B3")).strip().lower()
+        if origem == "avenue":
             return row["valor_atual"] * dolar_hoje
         return row["valor_atual"]
 
@@ -116,34 +117,32 @@ if st.session_state["authentication_status"]:
         st.markdown("---")
         if st.button("💾 SALVAR TUDO NO GITHUB"):
             with st.spinner("Sincronizando..."):
-                # Salvamos apenas as colunas originais (sem a calculada valor_efetivo)
+                # Salvamos apenas as colunas que devem ir para o CSV permanente
                 colunas_salvar = ["origem", "tipo", "nome", "valor_atual", "aporte_mensal", "juros_mensal"]
                 csv_str = df_editado[colunas_salvar].to_csv(index=False)
-                res1 = save_git_file("dados.csv", csv_str, csv_sha, "Update ativos e origem")
+                res1 = save_git_file("dados.csv", csv_str, csv_sha, "Update estrutural")
                 
                 df_metas_save = pd.DataFrame([{"valor_meta": valor_meta, "tempo_anos": tempo_anos}])
                 metas_csv_str = df_metas_save.to_csv(index=False)
                 res2 = save_git_file("metas.csv", metas_csv_str, metas_sha, "Update metas")
                 
                 if res1.status_code in [200, 201] and res2.status_code in [200, 201]:
-                    st.success("Salvo com sucesso!")
+                    st.success("Tabelas atualizadas no GitHub!")
                     st.balloons()
                     st.rerun()
 
         authenticator.logout("Sair", "sidebar")
 
-    # --- FILTRAGEM PARA GRÁFICOS ---
+    # --- FILTRAGEM ---
     df_filtrado = df_editado[df_editado["tipo"].isin(filtro_tipos)].copy() if filtro_tipos else df_editado.copy()
 
-    # --- DASHBOARD COM VALOR EFETIVO ---
+    # --- DASHBOARD ---
     if not df_filtrado.empty:
-        # ATENÇÃO: Agora usamos 'valor_efetivo' em vez de 'valor_atual'
-        total_atual_brl = df_filtrado["valor_efetivo"].sum()
+        total_brl = df_filtrado["valor_efetivo"].sum()
         
         m1, m2, m3 = st.columns(3)
-        m1.metric("Patrimônio Total (R$)", f"R$ {total_atual_brl:,.2f}")
+        m1.metric("Patrimônio Total (R$)", f"R$ {total_brl:,.2f}")
         
-        # Projeção
         meses = tempo_anos * 12
         projecao = [0.0] * (meses + 1)
         for _, row in df_filtrado.iterrows():
@@ -153,32 +152,26 @@ if st.session_state["authentication_status"]:
                 if m > 0: val = (val * (1 + j)) + a
                 projecao[m] += val
 
-        m2.metric(f"Estimado em {tempo_anos} anos", f"R$ {projecao[-1]:,.2f}")
-        progresso = (total_atual_brl / valor_meta) * 100 if valor_meta > 0 else 0
-        m3.metric("Progresso da Meta", f"{progresso:.1f}%")
+        m2.metric(f"Em {tempo_anos} anos", f"R$ {projecao[-1]:,.2f}")
+        progresso = (total_brl / valor_meta) * 100 if valor_meta > 0 else 0
+        m3.metric("Progresso Meta", f"{progresso:.1f}%")
 
         # Gráficos
         st.markdown("---")
         col1, col2 = st.columns(2)
         with col1:
-            st.write("### 📂 Distribuição por Tipo (R$)")
+            st.write("### 📂 Por Tipo (R$)")
             df_tipo = df_filtrado.groupby("tipo")["valor_efetivo"].sum().reset_index()
             fig_tipo = go.Figure(data=[go.Pie(labels=df_tipo["tipo"], values=df_tipo["valor_efetivo"], hole=.4)])
             st.plotly_chart(fig_tipo, use_container_width=True)
         
         with col2:
-            st.write("### 💎 Distribuição por Nome (R$)")
+            st.write("### 💎 Por Nome (R$)")
             fig_nome = go.Figure(data=[go.Pie(labels=df_filtrado["nome"], values=df_filtrado["valor_efetivo"], hole=.4)])
             st.plotly_chart(fig_nome, use_container_width=True)
-        
-        st.write("### 📈 Evolução Estimada (Em Reais)")
-        fig_evol = go.Figure()
-        fig_evol.add_trace(go.Scatter(y=projecao, mode='lines', fill='tozeroy', line=dict(color='#00FF00', width=3)))
-        fig_evol.add_hline(y=valor_meta, line_dash="dash", line_color="red", annotation_text="Meta")
-        st.plotly_chart(fig_evol, use_container_width=True)
-
-    # Mostrar a tabela com o cálculo pra conferência
-    with st.expander("🔍 Visualizar Tabela de Conversão (Valores em R$)"):
+            
+    # Visualizador de detalhes
+    with st.expander("🔍 Detalhes da Conversão Cambial"):
         st.dataframe(df_editado[["origem", "nome", "valor_atual", "valor_efetivo"]], use_container_width=True)
 
 elif st.session_state["authentication_status"] is False:
