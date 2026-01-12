@@ -8,17 +8,15 @@ import json
 from io import StringIO
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
-st.set_page_config(page_title="Gestor Financeiro Inteligente", layout="wide")
+st.set_page_config(page_title="Gestor Financeiro PRO", layout="wide")
 
 # --- FUNÇÃO PARA PEGAR O DÓLAR (DUPLA FONTE) ---
 @st.cache_data(ttl=3600)
 def get_dollar_rate():
-    # Fonte 1: AwesomeAPI
     try:
         res = requests.get("https://economia.awesomeapi.com.br/json/last/USD-BRL", timeout=5).json()
         return float(res["USDBRL"]["bid"]), res["USDBRL"]["create_date"]
     except:
-        # Fonte 2: Alternativa (exchangerate-api)
         try:
             res = requests.get("https://open.er-api.com/v6/latest/USD", timeout=5).json()
             return float(res["rates"]["BRL"]), "Cotação via API Secundária"
@@ -79,10 +77,10 @@ if st.session_state["authentication_status"]:
 
     # --- UI PRINCIPAL ---
     st.title("📊 Gestor Financeiro Inteligente")
-    st.info(f"💵 **Dólar:** R$ {dolar_hoje:.2f} | **Atualizado em:** {data_dolar}")
+    st.info(f"💵 **Dólar Atual:** R$ {dolar_hoje:.2f} | **Data da Cotação:** {data_dolar}")
 
-    # Tabela Editável
-    st.subheader("📝 Carteira de Ativos")
+    # Tabela Principal
+    st.subheader("📝 Edição da Carteira")
     df_editado = st.data_editor(df_ativos, num_rows="dynamic", use_container_width=True)
 
     # Cálculo do Valor Efetivo (Conversão)
@@ -96,9 +94,9 @@ if st.session_state["authentication_status"]:
 
     # --- SIDEBAR ---
     with st.sidebar:
-        st.header(f"Olá, {st.session_state['name']}")
-        valor_meta = st.number_input("Sua Meta (R$)", value=meta_inicial, format="%.2f")
-        tempo_anos = st.slider("Anos", 1, 50, value=tempo_inicial)
+        st.header(f"Perfil: {st.session_state['name']}")
+        valor_meta = st.number_input("Meta de Independência (R$)", value=meta_inicial, format="%.2f")
+        tempo_anos = st.slider("Prazo Estimado (Anos)", 1, 50, value=tempo_inicial)
         
         if st.button("💾 SALVAR TUDO"):
             with st.spinner("Sincronizando..."):
@@ -107,85 +105,80 @@ if st.session_state["authentication_status"]:
                 save_git_file("dados.csv", csv_str, csv_sha, "Update ativos")
                 df_metas_save = pd.DataFrame([{"valor_meta": valor_meta, "tempo_anos": tempo_anos}])
                 save_git_file("metas.csv", df_metas_save.to_csv(index=False), metas_sha, "Update metas")
-                st.success("Salvo com sucesso!")
+                st.success("Dados Sincronizados!")
                 st.rerun()
+        
+        st.markdown("---")
+        authenticator.logout("Sair", "sidebar")
 
-    # --- DASHBOARD & INSIGHTS ---
+    # --- CÁLCULOS TÉCNICOS ---
     if not df_editado.empty:
         total_brl = df_editado["valor_efetivo"].sum()
         
-        # --- SEÇÃO 1: INSIGHTS DE ALOCAÇÃO (ALGORITMO) ---
-        st.markdown("---")
-        st.header("⚖️ Inteligência de Alocação & Balanço")
-        
-        # Agrupar por tipo
-        df_aloc = df_editado.groupby("tipo")["valor_efetivo"].sum().reset_index()
-        df_aloc["% Atual"] = (df_aloc["valor_efetivo"] / total_brl) * 100
-        
-        cols_aloc = st.columns(len(df_aloc) if len(df_aloc) > 0 else 1)
-        
-        metas_alocacao = {}
-        for i, row in df_aloc.iterrows():
-            with cols_aloc[i % len(cols_aloc)]:
-                st.write(f"**{row['tipo']}**")
-                # O usuário define a meta ideal para cada tipo
-                meta_tipo = st.number_input(f"Meta % ({row['tipo']})", min_value=0.0, max_value=100.0, value=100.0/len(df_aloc), key=f"meta_{row['tipo']}")
-                metas_alocacao[row['tipo']] = meta_tipo
-                
-                # Cálculo do desvio
-                valor_ideal = (meta_tipo / 100) * total_brl
-                diferenca = valor_ideal - row['valor_efetivo']
-                
-                if diferenca > 0:
-                    st.success(f"Comprar: R$ {diferenca:,.2f}")
-                else:
-                    st.warning(f"Excesso: R$ {abs(diferenca):,.2f}")
-
-        # --- SEÇÃO 2: GRÁFICOS ---
-        st.markdown("---")
-        g1, g2 = st.columns(2)
-        with g1:
-            st.write("### 📂 Distribuição por Categoria")
-            fig_pie = go.Figure(data=[go.Pie(labels=df_aloc["tipo"], values=df_aloc["valor_efetivo"], hole=.4)])
-            st.plotly_chart(fig_pie, use_container_width=True)
-        with g2:
-            st.write("### 💎 Composição da Carteira")
-            fig_nome = go.Figure(data=[go.Pie(labels=df_editado["nome"], values=df_editado["valor_efetivo"], hole=.4)])
-            st.plotly_chart(fig_nome, use_container_width=True)
-
-        # --- SEÇÃO 3: EVOLUÇÃO (COM LEGENDA) ---
-        st.write("### 📈 Simulação de Crescimento Patrimonial")
+        # Projeção de Crescimento
         meses = tempo_anos * 12
         projecao = [0.0] * (meses + 1)
         for _, row in df_editado.iterrows():
-            v, a, j = float(row["valor_efetivo"]), float(row["aporte_mensal"]), (float(row["juros_mensal"])/100)
+            v = float(row["valor_efetivo"])
+            a = float(row["aporte_mensal"])
+            j = (float(row["juros_mensal"])/100)
             acum = v
             for m in range(meses + 1):
                 if m > 0: acum = (acum * (1 + j)) + a
                 projecao[m] += acum
 
+        # --- SEÇÃO 1: CARTÕES DE INDICADORES (KPIs) ---
+        st.markdown("---")
+        k1, k2, k3 = st.columns(3)
+        k1.metric("💰 Patrimônio Atual", f"R$ {total_brl:,.2f}")
+        k2.metric(f"🚀 Projetado ({tempo_anos} anos)", f"R$ {projecao[-1]:,.2f}")
+        percent_meta = (total_brl / valor_meta) * 100 if valor_meta > 0 else 0
+        k3.metric("🎯 Meta Atingida", f"{percent_meta:.1f}%", delta=f"{valor_meta - total_brl:,.2f} faltantes", delta_color="inverse")
+
+        # --- SEÇÃO 2: RACIONAL DA CONVERSÃO ---
+        with st.expander("💱 Racional da Conversão Cambial (Clique para ver detalhes)"):
+            df_conv = df_editado.copy()
+            df_conv["Moeda"] = df_conv["origem"].apply(lambda x: "USD (Dólar)" if str(x).lower()=="avenue" else "BRL (Real)")
+            df_conv["Taxa Aplicada"] = df_conv["origem"].apply(lambda x: dolar_hoje if str(x).lower()=="avenue" else 1.0)
+            st.dataframe(
+                df_conv[["origem", "Moeda", "nome", "valor_atual", "Taxa Aplicada", "valor_efetivo"]].rename(
+                    columns={"valor_atual": "Valor na Origem", "valor_efetivo": "Valor em Reais (R$)"}
+                ), use_container_width=True
+            )
+
+        # --- SEÇÃO 3: ALGORITMO DE ALOCAÇÃO ---
+        st.markdown("---")
+        st.header("⚖️ Inteligência de Rebalanceamento")
+        df_aloc = df_editado.groupby("tipo")["valor_efetivo"].sum().reset_index()
+        cols_aloc = st.columns(len(df_aloc) if len(df_aloc) > 0 else 1)
+        
+        for i, row in df_aloc.iterrows():
+            with cols_aloc[i % len(cols_aloc)]:
+                st.write(f"**{row['tipo']}**")
+                meta_tipo = st.number_input(f"Meta % ({row['tipo']})", 0.0, 100.0, 100.0/len(df_aloc), key=f"m_{row['tipo']}")
+                v_ideal = (meta_tipo / 100) * total_brl
+                dif = v_ideal - row['valor_efetivo']
+                if dif > 0: st.success(f"Comprar: R$ {dif:,.2f}")
+                else: st.warning(f"Excesso: R$ {abs(dif):,.2f}")
+
+        # --- SEÇÃO 4: GRÁFICOS ---
+        st.markdown("---")
+        g1, g2 = st.columns(2)
+        with g1:
+            st.write("### 📂 Composição por Tipo")
+            fig_p1 = go.Figure(data=[go.Pie(labels=df_aloc["tipo"], values=df_aloc["valor_efetivo"], hole=.4)])
+            st.plotly_chart(fig_p1, use_container_width=True)
+        with g2:
+            st.write("### 💎 Composição por Ativo")
+            fig_p2 = go.Figure(data=[go.Pie(labels=df_editado["nome"], values=df_editado["valor_efetivo"], hole=.4)])
+            st.plotly_chart(fig_p2, use_container_width=True)
+
+        st.write("### 📈 Evolução Estimada da Carteira Atual")
         fig_evol = go.Figure()
-        fig_evol.add_trace(go.Scatter(
-            x=list(range(meses + 1)), 
-            y=projecao, 
-            name="Patrimônio Projetado",
-            fill='tozeroy', 
-            line=dict(color='#00FF00', width=3)
-        ))
-        fig_evol.add_hline(
-            y=valor_meta, 
-            line_dash="dash", 
-            line_color="red", 
-            annotation_text="Sua Meta de Independência",
-            name="Meta"
-        )
-        fig_evol.update_layout(
-            showlegend=True, 
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-            xaxis_title="Meses",
-            yaxis_title="Reais (R$)"
-        )
+        fig_evol.add_trace(go.Scatter(y=projecao, name="Patrimônio", fill='tozeroy', line=dict(color='#00FF00', width=3)))
+        fig_evol.add_hline(y=valor_meta, line_dash="dash", line_color="red", annotation_text="Meta de Independência")
+        fig_evol.update_layout(showlegend=True, xaxis_title="Meses", yaxis_title="R$")
         st.plotly_chart(fig_evol, use_container_width=True)
 
 elif st.session_state["authentication_status"] is False:
-    st.error("Login incorreto")
+    st.error("Login inválido")
