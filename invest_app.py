@@ -10,7 +10,7 @@ from io import StringIO
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Gestor Financeiro PRO", layout="wide")
 
-# --- FUNÇÃO PARA PEGAR O DÓLAR (DUPLA FONTE) ---
+# --- FUNÇÃO PARA PEGAR O DÓLAR (DUPLA FONTE + CACHE) ---
 @st.cache_data(ttl=3600)
 def get_dollar_rate():
     try:
@@ -23,7 +23,7 @@ def get_dollar_rate():
         except:
             return 5.50, "Cotação Manual (Serviço Indisponível)"
 
-# --- CONFIGURAÇÕES GITHUB ---
+# --- CONFIGURAÇÕES GITHUB (SECRETS) ---
 GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
 REPO_NAME = st.secrets["REPO_NAME"]
 HEADERS = {"Authorization": f"token {GITHUB_TOKEN}"}
@@ -43,7 +43,7 @@ def save_git_file(file_path, content_str, sha, message):
     payload = {"message": message, "content": encoded, "sha": sha}
     return requests.put(url, headers=HEADERS, data=json.dumps(payload))
 
-# --- LOGIN ---
+# --- SISTEMA DE LOGIN ---
 names = ["Patrick Bravo"]
 usernames = ["admin"]
 passwords = ["12345"]
@@ -58,7 +58,7 @@ authenticator.login(location="main")
 if st.session_state["authentication_status"]:
     dolar_hoje, data_dolar = get_dollar_rate()
 
-    # Carregar Dados
+    # Carregar Dados do GitHub
     csv_data, csv_sha = get_git_file("dados.csv")
     metas_csv_data, metas_sha = get_git_file("metas.csv")
 
@@ -79,11 +79,22 @@ if st.session_state["authentication_status"]:
     st.title("📊 Gestor Financeiro Inteligente")
     st.info(f"💵 **Dólar Atual:** R$ {dolar_hoje:.2f} | **Data da Cotação:** {data_dolar}")
 
-    # Tabela Principal
     st.subheader("📝 Edição da Carteira")
-    df_editado = st.data_editor(df_ativos, num_rows="dynamic", use_container_width=True)
+    st.caption("Dica: Para excluir, selecione a linha e aperte 'Delete'.")
+    
+    # Editor de Dados com Centavos e Exclusão
+    df_editado = st.data_editor(
+        df_ativos, 
+        num_rows="dynamic", 
+        use_container_width=True,
+        column_config={
+            "valor_atual": st.column_config.NumberColumn("Valor (Unidade)", format="%.2f"),
+            "aporte_mensal": st.column_config.NumberColumn("Aporte (R$)", format="%.2f"),
+            "juros_mensal": st.column_config.NumberColumn("Juros (%)", format="%.2f%%"),
+        }
+    )
 
-    # Cálculo do Valor Efetivo (Conversão)
+    # Cálculo do Valor Efetivo (Conversão Avenue)
     def calcular_efetivo(row):
         try:
             val = float(row["valor_atual"])
@@ -98,7 +109,7 @@ if st.session_state["authentication_status"]:
         valor_meta = st.number_input("Meta de Independência (R$)", value=meta_inicial, format="%.2f")
         tempo_anos = st.slider("Prazo Estimado (Anos)", 1, 50, value=tempo_inicial)
         
-        if st.button("💾 SALVAR TUDO"):
+        if st.button("💾 SALVAR TUDO NO GITHUB"):
             with st.spinner("Sincronizando..."):
                 cols = ["origem", "tipo", "nome", "valor_atual", "aporte_mensal", "juros_mensal"]
                 csv_str = df_editado[cols].to_csv(index=False)
@@ -111,42 +122,34 @@ if st.session_state["authentication_status"]:
         st.markdown("---")
         authenticator.logout("Sair", "sidebar")
 
-    # --- CÁLCULOS TÉCNICOS ---
+    # --- INDICADORES PRINCIPAIS (KPIs) ---
     if not df_editado.empty:
         total_brl = df_editado["valor_efetivo"].sum()
         
-        # Projeção de Crescimento Global
+        # Projeção Global (Usada para o card principal)
         meses = tempo_anos * 12
-        projecao_global = [0.0] * (meses + 1)
+        projecao_total = [0.0] * (meses + 1)
         for _, row in df_editado.iterrows():
-            v = float(row["valor_efetivo"])
-            a = float(row["aporte_mensal"])
-            j = (float(row["juros_mensal"])/100)
+            v, a, j = float(row["valor_efetivo"]), float(row["aporte_mensal"]), (float(row["juros_mensal"])/100)
             acum = v
             for m in range(meses + 1):
                 if m > 0: acum = (acum * (1 + j)) + a
-                projecao_global[m] += acum
+                projecao_total[m] += acum
 
-        # --- SEÇÃO 1: CARTÕES DE INDICADORES (KPIs) ---
         st.markdown("---")
         k1, k2, k3 = st.columns(3)
         k1.metric("💰 Patrimônio Atual", f"R$ {total_brl:,.2f}")
-        k2.metric(f"🚀 Projetado ({tempo_anos} anos)", f"R$ {projecao_global[-1]:,.2f}")
+        k2.metric(f"🚀 Projetado ({tempo_anos} anos)", f"R$ {projecao_total[-1]:,.2f}")
         percent_meta = (total_brl / valor_meta) * 100 if valor_meta > 0 else 0
-        k3.metric("🎯 Meta Atingida", f"{percent_meta:.1f}%", delta=f"{valor_meta - total_brl:,.2f} faltantes", delta_color="inverse")
+        k3.metric("🎯 Meta Atingida", f"{percent_meta:.1f}%", delta=f"Faltam R$ {valor_meta - total_brl:,.2f}", delta_color="inverse")
 
-        # --- SEÇÃO 2: RACIONAL DA CONVERSÃO ---
-        with st.expander("💱 Racional da Conversão Cambial (Clique para ver detalhes)"):
+        # Racional da Conversão
+        with st.expander("💱 Racional da Conversão Cambial"):
             df_conv = df_editado.copy()
-            df_conv["Moeda"] = df_conv["origem"].apply(lambda x: "USD (Dólar)" if str(x).lower()=="avenue" else "BRL (Real)")
-            df_conv["Taxa Aplicada"] = df_conv["origem"].apply(lambda x: dolar_hoje if str(x).lower()=="avenue" else 1.0)
-            st.dataframe(
-                df_conv[["origem", "Moeda", "nome", "valor_atual", "Taxa Aplicada", "valor_efetivo"]].rename(
-                    columns={"valor_atual": "Valor na Origem", "valor_efetivo": "Valor em Reais (R$)"}
-                ), use_container_width=True
-            )
+            df_conv["Cotação Aplicada"] = df_conv["origem"].apply(lambda x: dolar_hoje if str(x).lower()=="avenue" else 1.0)
+            st.dataframe(df_conv[["origem", "nome", "valor_atual", "Cotação Aplicada", "valor_efetivo"]], use_container_width=True)
 
-        # --- SEÇÃO 3: ALGORITMO DE ALOCAÇÃO ---
+        # --- INTELIGÊNCIA DE REBALANCEAMENTO ---
         st.markdown("---")
         st.header("⚖️ Inteligência de Rebalanceamento")
         df_aloc = df_editado.groupby("tipo")["valor_efetivo"].sum().reset_index()
@@ -155,74 +158,54 @@ if st.session_state["authentication_status"]:
         for i, row in df_aloc.iterrows():
             with cols_aloc[i % len(cols_aloc)]:
                 st.write(f"**{row['tipo']}**")
-                meta_tipo = st.number_input(f"Meta % ({row['tipo']})", 0.0, 100.0, 100.0/len(df_aloc), key=f"m_{row['tipo']}")
-                v_ideal = (meta_tipo / 100) * total_brl
+                meta_t = st.number_input(f"Meta %", 0.0, 100.0, 100.0/len(df_aloc), key=f"m_{row['tipo']}")
+                v_ideal = (meta_t / 100) * total_brl
                 dif = v_ideal - row['valor_efetivo']
                 if dif > 0: st.success(f"Comprar: R$ {dif:,.2f}")
                 else: st.warning(f"Excesso: R$ {abs(dif):,.2f}")
 
-        # --- SEÇÃO 4: GRÁFICOS INTERATIVOS ---
+        # --- SEÇÃO INTERATIVA (PLOTLY) ---
         st.markdown("---")
-        st.header("📊 Análise Gráfica Interativa")
+        st.header("📊 Análise Dinâmica (Clique no gráfico para filtrar)")
         
-        # Lógica de Filtro Interativo
-        tipo_selecionado = None
-        if st.button("🔄 Limpar Filtro Gráfico"):
-            st.session_state["grafico_tipo_selecao"] = None # Reseta a seleção
+        if st.button("🔄 Resetar Filtro Gráfico"):
+            if "selecao_tipo" in st.session_state: del st.session_state["selecao_tipo"]
             st.rerun()
 
-        # Verifica se houve clique no gráfico de tipo
-        if "grafico_tipo_selecao" in st.session_state and st.session_state["grafico_tipo_selecao"]:
-             try:
-                 # Tenta extrair o tipo selecionado (pode variar dependendo da versão do Streamlit/Plotly)
-                 dados_selecao = st.session_state["grafico_tipo_selecao"]
-                 if 'points' in dados_selecao:
-                     tipo_selecionado = dados_selecao['points'][0]['label']
-                 elif 'selection' in dados_selecao and 'points' in dados_selecao['selection']:
-                      tipo_selecionado = dados_selecao['selection']['points'][0]['label']
-             except:
-                 pass # Se der erro na extração, considera sem filtro
+        # Captura de Seleção
+        tipo_selecionado = None
+        if "selecao_tipo" in st.session_state:
+            sel = st.session_state["selecao_tipo"]
+            if sel and "selection" in sel and "points" in sel["selection"] and len(sel["selection"]["points"]) > 0:
+                tipo_selecionado = sel["selection"]["points"][0]["label"]
 
-        # Cria o DataFrame filtrado com base na seleção
-        if tipo_selecionado:
-            st.info(f"Filtrando por: **{tipo_selecionado}**")
-            df_interativo = df_editado[df_editado["tipo"] == tipo_selecionado].copy()
-        else:
-            df_interativo = df_editado.copy()
+        df_visualizacao = df_editado[df_editado["tipo"] == tipo_selecionado].copy() if tipo_selecionado else df_editado.copy()
 
         g1, g2 = st.columns(2)
         with g1:
-            st.write("### 📂 Composição por Tipo (Clique para Filtrar)")
-            # O gráfico principal que gera o evento de clique
+            st.write("### 📂 Composição por Tipo")
             fig_p1 = go.Figure(data=[go.Pie(labels=df_aloc["tipo"], values=df_aloc["valor_efetivo"], hole=.4)])
-            fig_p1.update_layout(clickmode='event+select')
-            # Importante: on_select="rerun" faz a página recarregar ao clicar
-            st.plotly_chart(fig_p1, use_container_width=True, on_select="rerun", key="grafico_tipo_selecao")
+            st.plotly_chart(fig_p1, use_container_width=True, on_select="rerun", key="selecao_tipo")
             
         with g2:
-            titulo_grafico = f"### 💎 Composição: {tipo_selecionado if tipo_selecionado else 'Geral'}"
-            st.write(titulo_grafico)
-            # Este gráfico reage ao filtro do primeiro
-            fig_p2 = go.Figure(data=[go.Pie(labels=df_interativo["nome"], values=df_interativo["valor_efetivo"], hole=.4)])
+            st.write(f"### 💎 Detalhes: {tipo_selecionado if tipo_selecionado else 'Geral'}")
+            fig_p2 = go.Figure(data=[go.Pie(labels=df_visualizacao["nome"], values=df_visualizacao["valor_efetivo"], hole=.4)])
             st.plotly_chart(fig_p2, use_container_width=True)
 
-        # Cálculo da Projeção Interativa (Baseada no filtro)
-        projecao_interativa = [0.0] * (meses + 1)
-        for _, row in df_interativo.iterrows():
-            v = float(row["valor_efetivo"])
-            a = float(row["aporte_mensal"])
-            j = (float(row["juros_mensal"])/100)
-            acum = v
+        # Gráfico de Evolução Reativo
+        st.write(f"### 📈 Projeção: {tipo_selecionado if tipo_selecionado else 'Total'}")
+        proj_vis = [0.0] * (meses + 1)
+        for _, row in df_visualizacao.iterrows():
+            v_v, a_v, j_v = float(row["valor_efetivo"]), float(row["aporte_mensal"]), (float(row["juros_mensal"])/100)
+            acum_v = v_v
             for m in range(meses + 1):
-                if m > 0: acum = (acum * (1 + j)) + a
-                projecao_interativa[m] += acum
+                if m > 0: acum_v = (acum_v * (1 + j_v)) + a_v
+                proj_vis[m] += acum_v
 
-        st.write(f"### 📈 Evolução Estimada: {tipo_selecionado if tipo_selecionado else 'Carteira Global'}")
         fig_evol = go.Figure()
-        fig_evol.add_trace(go.Scatter(y=projecao_interativa, name="Patrimônio Filtrado", fill='tozeroy', line=dict(color='#00FF00', width=3)))
-        # Mostra a meta apenas se estiver vendo a carteira global
+        fig_evol.add_trace(go.Scatter(y=proj_vis, fill='tozeroy', name="Patrimônio", line=dict(color='#00FF00', width=3)))
         if not tipo_selecionado:
-            fig_evol.add_hline(y=valor_meta, line_dash="dash", line_color="red", annotation_text="Meta Global")
+            fig_evol.add_hline(y=valor_meta, line_dash="dash", line_color="red", annotation_text="Meta")
         fig_evol.update_layout(showlegend=True, xaxis_title="Meses", yaxis_title="R$")
         st.plotly_chart(fig_evol, use_container_width=True)
 
