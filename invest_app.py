@@ -34,13 +34,14 @@ def save_git_file(file_path, content_str, sha, message):
 # --- SISTEMA DE LOGIN ---
 names = ["Patrick Bravo"]
 usernames = ["admin"]
-passwords = ["12345"] # Você pode alterar aqui
+passwords = ["12345"]
 
 authenticator = stauth.Authenticate(
     {"usernames": {usernames[0]: {"name": names[0], "password": passwords[0]}}},
     "cookie_invest", "key_invest", cookie_expiry_days=30
 )
 
+# Renderiza a tela de login
 authenticator.login(location="main")
 
 if st.session_state["authentication_status"]:
@@ -59,25 +60,33 @@ if st.session_state["authentication_status"]:
     if config_data:
         conf = json.loads(config_data)
         meta_inicial = conf.get("valor_meta", 100000.0)
-        tempo_inicial = conf.get("tempo_anos", 10)
+        tempo_anos_inicial = conf.get("tempo_anos", 10)
     else:
-        meta_inicial, tempo_inicial = 100000.0, 10
+        meta_inicial, tempo_anos_inicial = 100000.0, 10
 
-    # --- SIDEBAR ---
+    # --- CORPO PRINCIPAL DO APP ---
+    st.title("📊 Painel de Investimentos Inteligente")
+    
+    st.subheader("📝 Gerenciar Carteira")
+    # DEFINIÇÃO DA TABELA (Importante: criada antes de ser usada para salvar)
+    df_editado = st.data_editor(df_ativos, num_rows="dynamic", use_container_width=True)
+
+    # --- BARRA LATERAL (SIDEBAR) ---
+    # Movi para cá para que df_editado já exista quando o botão for clicado
     with st.sidebar:
-        st.header(f"Bem-vindo, {st.session_state['name']}")
+        st.header(f"Olá, {st.session_state['name']}")
         st.subheader("🎯 Sua Meta")
         valor_meta = st.number_input("Objetivo Final (R$)", min_value=1.0, value=float(meta_inicial))
-        tempo_anos = st.slider("Prazo (Anos)", 1, 40, value=int(tempo_inicial))
+        tempo_anos = st.slider("Prazo (Anos)", 1, 40, value=int(tempo_anos_inicial))
         
         st.markdown("---")
         if st.button("💾 SALVAR TUDO NO GITHUB"):
-            with st.spinner("Sincronizando..."):
-                # Salvar CSV
+            with st.spinner("Sincronizando com GitHub..."):
+                # Salvar CSV dos ativos
                 csv_str = df_editado.to_csv(index=False)
                 res1 = save_git_file("dados.csv", csv_str, csv_sha, "Update ativos")
                 
-                # Salvar Config
+                # Salvar JSON da configuração
                 conf_str = json.dumps({"valor_meta": valor_meta, "tempo_anos": tempo_anos})
                 res2 = save_git_file("config.json", conf_str, config_sha, "Update config")
                 
@@ -86,31 +95,24 @@ if st.session_state["authentication_status"]:
                     st.balloons()
                     st.rerun()
                 else:
-                    st.error("Erro na sincronização. Verifique o Token.")
+                    st.error(f"Erro ao salvar: CSV({res1.status_code}) Config({res2.status_code})")
 
         st.markdown("---")
         authenticator.logout("Sair", "sidebar")
 
-    # --- CORPO DO APP ---
-    st.title("📊 Painel de Investimentos Inteligente")
-
-    # Editor de Ativos
-    st.subheader("📝 Gerenciar Carteira")
-    df_editado = st.data_editor(df_ativos, num_rows="dynamic", use_container_width=True)
-
-    # Cálculos e Gráficos
+    # --- CÁLCULOS E GRÁFICOS ---
     if not df_editado.empty:
-        # Limpeza de dados
+        # Garantir que as colunas são números
         for col in ["valor_atual", "aporte_mensal", "juros_mensal"]:
             df_editado[col] = pd.to_numeric(df_editado[col], errors='coerce').fillna(0)
 
         total_atual = df_editado["valor_atual"].sum()
         
-        # Dashboard de Métricas
+        # Métricas
         m1, m2, m3 = st.columns(3)
         m1.metric("Patrimônio Atual", f"R$ {total_atual:,.2f}")
         
-        # Cálculo de Projeção
+        # Projeção de Crescimento
         meses = tempo_anos * 12
         projecao = [0.0] * (meses + 1)
         for _, row in df_editado.iterrows():
@@ -124,7 +126,7 @@ if st.session_state["authentication_status"]:
         progresso = (total_atual / valor_meta) * 100 if valor_meta > 0 else 0
         m3.metric("Progresso da Meta", f"{progresso:.1f}%")
 
-        # Gráficos
+        # Gráficos Plotly
         col1, col2 = st.columns(2)
         with col1:
             st.write("### Divisão por Ativo")
