@@ -17,8 +17,13 @@ authenticator = stauth.Authenticate(
 )
 
 
-# Como deve ficar (Correto):
-name, authentication_status, username = authenticator.login(location="main")
+# Primeiro, chamamos o login sem atribuir a variáveis
+authenticator.login(location='main')
+
+# Depois, pegamos os valores que precisamos do estado da sessão
+name = st.session_state["name"]
+authentication_status = st.session_state["authentication_status"]
+username = st.session_state["username"]
 
 
 
@@ -121,3 +126,4 @@ else:
     st.subheader("📋 Tabela de Evolução")
 
     st.dataframe(df.tail(12), use_container_width=True) # Mostra os últimos 12 meses
+
