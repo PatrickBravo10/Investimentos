@@ -16,7 +16,12 @@ authenticator = stauth.Authenticate(
     "cookie_invest", "key_invest", cookie_expiry_days=30
 )
 
-name, authentication_status, username = authenticator.login("Login", "main")
+
+# Como deve ficar (Correto):
+name, authentication_status, username = authenticator.login(location="main")
+
+
+
 
 if authentication_status is False:
     st.error("Usuário ou senha incorretos")
@@ -114,4 +119,5 @@ else:
         st.plotly_chart(fig_pizza, use_container_width=True)
 
     st.subheader("📋 Tabela de Evolução")
+
     st.dataframe(df.tail(12), use_container_width=True) # Mostra os últimos 12 meses
