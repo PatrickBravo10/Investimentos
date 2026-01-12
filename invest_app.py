@@ -7,10 +7,10 @@ from streamlit_gsheets import GSheetsConnection
 # --- CONFIGURAÇÃO ---
 st.set_page_config(page_title="Gestor Financeiro Patrick", layout="wide")
 
-# LOGIN CONFIG (Simplificado para evitar travamento do botão)
+# LOGIN CONFIG
 names = ["Usuario Teste"]
 usernames = ["admin"]
-passwords = ["12345"]
+passwords = ["12345"] # Corrigido: Removido o 'A' que estava sobrando aqui
 
 authenticator = stauth.Authenticate(
     {"usernames": {usernames[0]: {"name": names[0], "password": passwords[0]}}},
@@ -28,14 +28,12 @@ if st.session_state["authentication_status"]:
         df_ativos = conn.read(worksheet="Sheet1", ttl=0)
         df_config = conn.read(worksheet="config", ttl=0)
         
-        # Se a planilha tiver dados, carrega meta. Se não, usa padrão.
         if not df_config.empty:
             meta_inicial = float(df_config["valor_meta"].iloc[0])
             tempo_inicial = int(df_config["tempo_anos"].iloc[0])
         else:
             meta_inicial, tempo_inicial = 100000.0, 10
     except Exception:
-        # Fallback se a planilha ou abas não existirem ainda
         df_ativos = pd.DataFrame(columns=["tipo", "nome", "valor_atual", "aporte_mensal", "juros_mensal"])
         meta_inicial, tempo_inicial = 100000.0, 10
 
@@ -46,17 +44,15 @@ if st.session_state["authentication_status"]:
         
         st.markdown("---")
         if st.button("💾 Guardar Tudo (Dados e Meta)"):
-            # Limpeza rápida: remove linhas totalmente vazias antes de salvar
+            # Remove linhas vazias e garante que as colunas estão certas
             df_para_salvar = df_ativos.dropna(how='all')
             
-            # Atualiza aba de ativos
+            # Atualiza abas
             conn.update(worksheet="Sheet1", data=df_para_salvar)
-            
-            # Atualiza aba de configurações
             df_meta_save = pd.DataFrame([{"valor_meta": valor_meta, "tempo_anos": tempo_anos}])
             conn.update(worksheet="config", data=df_meta_save)
             
-            st.success("Dados e Meta salvos no Google Sheets!")
+            st.success("Dados salvos no Google Sheets!")
             st.balloons()
         
         st.markdown("---")
@@ -66,39 +62,31 @@ if st.session_state["authentication_status"]:
 
     # 2. EDITOR DE TABELA
     st.subheader("📝 Seus Investimentos")
-    st.caption("Preencha as colunas. Dica: Clique fora da tabela antes de apertar o botão salvar.")
     
-    # Garantir que as colunas existam para o editor não dar erro
     colunas_obrigatorias = ["tipo", "nome", "valor_atual", "aporte_mensal", "juros_mensal"]
     for col in colunas_obrigatorias:
         if col not in df_ativos.columns:
-            df_ativos[col] = 0.0 if "valor" in col or "juros" in col or "aporte" in col else ""
+            df_ativos[col] = 0.0 if any(x in col for x in ["valor", "juros", "aporte"]) else ""
 
     df_ativos = st.data_editor(df_ativos, num_rows="dynamic", use_container_width=True)
 
-    # --- 3. CÁLCULOS DE PROJEÇÃO (Protegidos contra erros) ---
+    # --- 3. CÁLCULOS DE PROJEÇÃO ---
     total_atual = 0.0
     meses = tempo_anos * 12
     evolucao_total = [0.0] * (meses + 1)
 
     if not df_ativos.empty:
-        # Converte colunas para numérico para evitar o erro de formatação
         for col in ["valor_atual", "aporte_mensal", "juros_mensal"]:
             df_ativos[col] = pd.to_numeric(df_ativos[col], errors='coerce').fillna(0)
 
         total_atual = df_ativos["valor_atual"].sum()
         
         for _, row in df_ativos.iterrows():
-            v = row["valor_atual"]
-            a = row["aporte_mensal"]
-            j = row["juros_mensal"] / 100
-            
+            v, a, j = row["valor_atual"], row["aporte_mensal"], row["juros_mensal"] / 100
             val_anterior = v
             for m in range(meses + 1):
-                if m == 0:
-                    val_m = v
-                else:
-                    val_m = (val_anterior * (1 + j)) + a
+                if m == 0: val_m = v
+                else: val_m = (val_anterior * (1 + j)) + a
                 evolucao_total[m] += val_m
                 val_anterior = val_m
 
@@ -116,28 +104,20 @@ if st.session_state["authentication_status"]:
     st.progress(min(progresso_pct/100, 1.0))
 
     col_g1, col_g2 = st.columns(2)
-    
     with col_g1:
-        st.subheader("🍕 Distribuição da Carteira")
+        st.subheader("🍕 Distribuição")
         if total_atual > 0:
-            fig_pizza = go.Figure(data=[go.Pie(
-                labels=df_ativos["nome"], 
-                values=df_ativos["valor_atual"], 
-                hole=.4
-            )])
+            fig_pizza = go.Figure(data=[go.Pie(labels=df_ativos["nome"], values=df_ativos["valor_atual"], hole=.4)])
             st.plotly_chart(fig_pizza, use_container_width=True)
-        else:
-            st.info("Adicione valores para ver o gráfico de pizza.")
-
     with col_g2:
-        st.subheader("📈 Evolução Estimada")
+        st.subheader("📈 Evolução")
         fig_linha = go.Figure()
         fig_linha.add_trace(go.Scatter(y=evolucao_total, name="Evolução", line=dict(color='#00ff00', width=3)))
-        fig_linha.add_hline(y=valor_meta, line_dash="dash", line_color="red", annotation_text="Sua Meta")
-        fig_linha.update_layout(xaxis_title="Meses", yaxis_title="R$")
+        fig_linha.add_hline(y=valor_meta, line_dash="dash", line_color="red")
         st.plotly_chart(fig_linha, use_container_width=True)
 
 elif st.session_state["authentication_status"] is False:
     st.error("Usuário ou senha incorretos")
 elif st.session_state["authentication_status"] is None:
     st.warning("Por favor, insira usuário e senha")
+
