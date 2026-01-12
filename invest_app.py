@@ -3,127 +3,116 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit_authenticator as stauth
 
-# --- CONFIGURAÇÃO E LOGIN ---
-st.set_page_config(page_title="Gestor de Investimentos", layout="wide")
+# --- CONFIGURAÇÃO ---
+st.set_page_config(page_title="Meu Gestor de Investimentos", layout="wide")
 
-# Sistema simples de usuários (Em produção, use banco de dados)
+# Login (Mantenha o padrão que funcionou)
 names = ["Usuario Teste"]
-usernames = ["admin"]
-passwords = ["12345"] # Em app real, as senhas devem ser criptografadas
+usernames = ["bravo"]
+passwords = ["12345"]
 
 authenticator = stauth.Authenticate(
     {"usernames": {usernames[0]: {"name": names[0], "password": passwords[0]}}},
     "cookie_invest", "key_invest", cookie_expiry_days=30
 )
 
+authenticator.login(location="main")
 
-# Primeiro, chamamos o login sem atribuir a variáveis
-authenticator.login(location='main')
-
-# Depois, pegamos os valores que precisamos do estado da sessão
-name = st.session_state["name"]
-authentication_status = st.session_state["authentication_status"]
-username = st.session_state["username"]
-
-
-
-
-if authentication_status is False:
+if st.session_state["authentication_status"] is False:
     st.error("Usuário ou senha incorretos")
-elif authentication_status is None:
+elif st.session_state["authentication_status"] is None:
     st.warning("Por favor, insira usuário e senha")
 else:
     # --- APP PRINCIPAL ---
     with st.sidebar:
-        st.write(f"Bem-vindo, **{name}**")
-        authenticator.logout("Sair", "sidebar")
-        st.markdown("---")
-        
-        st.header("🎯 Minha Meta")
+        st.header("🎯 Meta Principal")
         valor_meta = st.number_input("Objetivo Final (R$)", min_value=0.0, value=100000.0)
-        
-        st.header("📈 Configurações de Mercado")
-        taxa_anual = st.number_input("Taxa de Juros Esperada (% ao ano)", value=10.0)
-        tempo_anos = st.slider("Tempo do Plano (Anos)", 1, 40, 10)
+        tempo_anos = st.slider("Prazo para a Meta (Anos)", 1, 40, 10)
+        st.markdown("---")
+        authenticator.logout("Sair", "sidebar")
 
-    st.title("🚀 Simulador de Carteira e Metas")
+    st.title("🏦 Minha Carteira & Metas")
 
-    # --- LANÇAMENTO POR CLASSE DE ATIVOS ---
-    st.subheader("🏦 Lançamento Mensal por Ativo")
-    col_a, col_b, col_c = st.columns(3)
-    
-    with col_a:
-        fii = st.number_input("FIIs (R$)", min_value=0.0, value=500.0)
-    with col_b:
-        acoes_br = st.number_input("Ações Brasil (R$)", min_value=0.0, value=300.0)
-    with col_c:
-        acoes_int = st.number_input("Ações Internacionais (R$)", min_value=0.0, value=200.0)
+    # --- SEÇÃO: CADASTRO DE INVESTIMENTOS ---
+    st.subheader("📝 Meus Investimentos Atuais")
+    st.info("Adicione abaixo seus ativos, o valor que tem hoje e a taxa de juros mensal esperada.")
 
-    aporte_total = fii + acoes_br + acoes_int
-    taxa_mensal = (1 + taxa_anual/100)**(1/12) - 1
-    total_meses = tempo_anos * 12
+    # Criando uma tabela editável para os ativos
+    if 'ativos_df' not in st.session_state:
+        # Dados iniciais de exemplo
+        data = {
+            "Tipo": ["Fundo Imobiliário", "Ações Brasil", "Internacional"],
+            "Nome do Ativo": ["HGLG11", "PETR4", "Apple"],
+            "Valor Atual (R$)": [5000.0, 3000.0, 2000.0],
+            "Juros Mensal (%)": [0.8, 1.0, 0.7]
+        }
+        st.session_state.ativos_df = pd.DataFrame(data)
+
+    # Editor de tabela (permite adicionar e excluir linhas)
+    df_editado = st.data_editor(
+        st.session_state.ativos_df, 
+        num_rows="dynamic", 
+        use_container_width=True,
+        column_config={
+            "Valor Atual (R$)": st.column_config.NumberColumn(format="R$ %.2f"),
+            "Juros Mensal (%)": st.column_config.NumberColumn(format="%.2f%%"),
+        }
+    )
+    st.session_state.ativos_df = df_editado
 
     # --- CÁLCULOS ---
-    dados = []
-    saldo = 0
-    investido_acumulado = 0
-
-    for mes in range(1, total_meses + 1):
-        juros = saldo * taxa_mensal
-        saldo += juros + aporte_total
-        investido_acumulado += aporte_total
-        
-        dados.append({
-            "Mês": mes,
-            "Investido": investido_acumulado,
-            "Juros": saldo - investido_acumulado,
-            "Total": saldo
-        })
-
-    df = pd.DataFrame(dados)
-    montante_final = df["Total"].iloc[-1]
+    total_atual = df_editado["Valor Atual (R$)"].sum()
+    
+    # Cálculo da projeção baseada na média ponderada das taxas
+    # (Ou poderíamos calcular cada um individualmente, aqui faremos a média para o gráfico)
+    taxa_media_mensal = (df_editado["Valor Atual (R$)"] * (df_editado["Juros Mensal (%)"] / 100)).sum() / total_atual if total_atual > 0 else 0
+    
+    meses = tempo_anos * 12
+    projecao_final = total_atual * ((1 + taxa_media_mensal) ** meses)
 
     # --- DASHBOARD ---
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Montante em {} Anos".format(tempo_anos), f"R$ {montante_final:,.2f}")
-    c2.metric("Aporte Mensal Total", f"R$ {aporte_total:,.2f}")
+    st.markdown("---")
+    m1, m2, m3 = st.columns(3)
     
-    progresso = min(montante_final / valor_meta, 1.0)
-    c3.metric("Atingimento da Meta", f"{progresso*100:.1f}%")
-    st.progress(progresso)
+    m1.metric("Patrimônio Total Hoje", f"R$ {total_atual:,.2f}")
+    m2.metric("Projeção em {0} anos".format(tempo_anos), f"R$ {projecao_final:,.2f}")
+    
+    progresso_meta = min(total_atual / valor_meta, 1.0)
+    m3.metric("Progresso da Meta", f"{progresso_meta*100:.1f}%")
+    st.progress(progresso_meta)
 
     # --- GRÁFICOS ---
-    fig = go.Figure()
-    fig.add_trace(go.Bar(x=df["Mês"], y=df["Investido"], name="Capital Investido", marker_color='#1f77b4'))
-    fig.add_trace(go.Bar(x=df["Mês"], y=df["Juros"], name="Juros Acumulados", marker_color='#2ca02c'))
-    
-    # Linha da Meta
-    fig.add_hline(y=valor_meta, line_dash="dash", line_color="red", annotation_text="Sua Meta")
+    col_g1, col_g2 = st.columns(2)
 
-    fig.update_layout(barmode='stack', title="Crescimento Patrimonial vs Meta", xaxis_title="Meses", yaxis_title="R$")
-    st.plotly_chart(fig, use_container_width=True)
-
-    # --- INSIGHTS ---
-    st.subheader("💡 Insights do Planejamento")
-    col_i1, col_i2 = st.columns(2)
-
-    with col_i1:
-        if montante_final >= valor_meta:
-            st.success(f"✅ Com esse plano, você baterá sua meta de R$ {valor_meta:,.2f}!")
-        else:
-            falta = valor_meta - montante_final
-            st.error(f"❌ Para atingir a meta neste prazo, você precisa de mais R$ {falta:,.2f} ou aumentar o aporte.")
-
-    with col_i2:
-        distribuicao = pd.DataFrame({
-            "Ativo": ["FIIs", "Ações BR", "Ações Int"],
-            "Valor": [fii, acoes_br, acoes_int]
-        })
-        fig_pizza = go.Figure(data=[go.Pie(labels=distribuicao["Ativo"], values=distribuicao["Valor"], hole=.3)])
-        fig_pizza.update_layout(title="Distribuição do Aporte Mensal", height=300)
+    with col_g1:
+        st.subheader("🍕 Distribuição da Carteira")
+        fig_pizza = go.Figure(data=[go.Pie(
+            labels=df_editado["Nome do Ativo"], 
+            values=df_editado["Valor Atual (R$)"],
+            hole=.4,
+            textinfo='label+percent'
+        )])
+        fig_pizza.update_layout(margin=dict(t=0, b=0, l=0, r=0))
         st.plotly_chart(fig_pizza, use_container_width=True)
 
-    st.subheader("📋 Tabela de Evolução")
+    with col_g2:
+        st.subheader("📈 Projeção de Crescimento")
+        # Simulação mês a mês para o gráfico
+        meses_lista = list(range(meses + 1))
+        valores_lista = [total_atual * ((1 + taxa_media_mensal) ** m) for m in meses_lista]
+        
+        fig_linha = go.Figure()
+        fig_linha.add_trace(go.Scatter(x=meses_lista, y=valores_lista, name="Evolução", line=dict(color='#00ff00', width=4)))
+        fig_linha.add_hline(y=valor_meta, line_dash="dash", line_color="red", annotation_text="Meta")
+        fig_linha.update_layout(xaxis_title="Meses", yaxis_title="R$")
+        st.plotly_chart(fig_linha, use_container_width=True)
 
-    st.dataframe(df.tail(12), use_container_width=True) # Mostra os últimos 12 meses
-
+    # Insights
+    if total_atual > 0:
+        st.markdown("---")
+        st.subheader("💡 Insights")
+        if projecao_final >= valor_meta:
+            st.success(f"Excelente! Com o rendimento atual de **{taxa_media_mensal*100:.2f}% a.m.**, você atingirá sua meta sem novos aportes.")
+        else:
+            falta = valor_meta - projecao_final
+            st.warning(f"Atenção: No ritmo atual, você chegará a R$ {projecao_final:,.2f}. Faltarão R$ {falta:,.2f} para sua meta.")
