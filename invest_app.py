@@ -115,9 +115,9 @@ if st.session_state["authentication_status"]:
     if not df_editado.empty:
         total_brl = df_editado["valor_efetivo"].sum()
         
-        # Projeção de Crescimento
+        # Projeção de Crescimento Global
         meses = tempo_anos * 12
-        projecao = [0.0] * (meses + 1)
+        projecao_global = [0.0] * (meses + 1)
         for _, row in df_editado.iterrows():
             v = float(row["valor_efetivo"])
             a = float(row["aporte_mensal"])
@@ -125,13 +125,13 @@ if st.session_state["authentication_status"]:
             acum = v
             for m in range(meses + 1):
                 if m > 0: acum = (acum * (1 + j)) + a
-                projecao[m] += acum
+                projecao_global[m] += acum
 
         # --- SEÇÃO 1: CARTÕES DE INDICADORES (KPIs) ---
         st.markdown("---")
         k1, k2, k3 = st.columns(3)
         k1.metric("💰 Patrimônio Atual", f"R$ {total_brl:,.2f}")
-        k2.metric(f"🚀 Projetado ({tempo_anos} anos)", f"R$ {projecao[-1]:,.2f}")
+        k2.metric(f"🚀 Projetado ({tempo_anos} anos)", f"R$ {projecao_global[-1]:,.2f}")
         percent_meta = (total_brl / valor_meta) * 100 if valor_meta > 0 else 0
         k3.metric("🎯 Meta Atingida", f"{percent_meta:.1f}%", delta=f"{valor_meta - total_brl:,.2f} faltantes", delta_color="inverse")
 
@@ -161,22 +161,68 @@ if st.session_state["authentication_status"]:
                 if dif > 0: st.success(f"Comprar: R$ {dif:,.2f}")
                 else: st.warning(f"Excesso: R$ {abs(dif):,.2f}")
 
-        # --- SEÇÃO 4: GRÁFICOS ---
+        # --- SEÇÃO 4: GRÁFICOS INTERATIVOS ---
         st.markdown("---")
+        st.header("📊 Análise Gráfica Interativa")
+        
+        # Lógica de Filtro Interativo
+        tipo_selecionado = None
+        if st.button("🔄 Limpar Filtro Gráfico"):
+            st.session_state["grafico_tipo_selecao"] = None # Reseta a seleção
+            st.rerun()
+
+        # Verifica se houve clique no gráfico de tipo
+        if "grafico_tipo_selecao" in st.session_state and st.session_state["grafico_tipo_selecao"]:
+             try:
+                 # Tenta extrair o tipo selecionado (pode variar dependendo da versão do Streamlit/Plotly)
+                 dados_selecao = st.session_state["grafico_tipo_selecao"]
+                 if 'points' in dados_selecao:
+                     tipo_selecionado = dados_selecao['points'][0]['label']
+                 elif 'selection' in dados_selecao and 'points' in dados_selecao['selection']:
+                      tipo_selecionado = dados_selecao['selection']['points'][0]['label']
+             except:
+                 pass # Se der erro na extração, considera sem filtro
+
+        # Cria o DataFrame filtrado com base na seleção
+        if tipo_selecionado:
+            st.info(f"Filtrando por: **{tipo_selecionado}**")
+            df_interativo = df_editado[df_editado["tipo"] == tipo_selecionado].copy()
+        else:
+            df_interativo = df_editado.copy()
+
         g1, g2 = st.columns(2)
         with g1:
-            st.write("### 📂 Composição por Tipo")
+            st.write("### 📂 Composição por Tipo (Clique para Filtrar)")
+            # O gráfico principal que gera o evento de clique
             fig_p1 = go.Figure(data=[go.Pie(labels=df_aloc["tipo"], values=df_aloc["valor_efetivo"], hole=.4)])
-            st.plotly_chart(fig_p1, use_container_width=True)
+            fig_p1.update_layout(clickmode='event+select')
+            # Importante: on_select="rerun" faz a página recarregar ao clicar
+            st.plotly_chart(fig_p1, use_container_width=True, on_select="rerun", key="grafico_tipo_selecao")
+            
         with g2:
-            st.write("### 💎 Composição por Ativo")
-            fig_p2 = go.Figure(data=[go.Pie(labels=df_editado["nome"], values=df_editado["valor_efetivo"], hole=.4)])
+            titulo_grafico = f"### 💎 Composição: {tipo_selecionado if tipo_selecionado else 'Geral'}"
+            st.write(titulo_grafico)
+            # Este gráfico reage ao filtro do primeiro
+            fig_p2 = go.Figure(data=[go.Pie(labels=df_interativo["nome"], values=df_interativo["valor_efetivo"], hole=.4)])
             st.plotly_chart(fig_p2, use_container_width=True)
 
-        st.write("### 📈 Evolução Estimada da Carteira Atual")
+        # Cálculo da Projeção Interativa (Baseada no filtro)
+        projecao_interativa = [0.0] * (meses + 1)
+        for _, row in df_interativo.iterrows():
+            v = float(row["valor_efetivo"])
+            a = float(row["aporte_mensal"])
+            j = (float(row["juros_mensal"])/100)
+            acum = v
+            for m in range(meses + 1):
+                if m > 0: acum = (acum * (1 + j)) + a
+                projecao_interativa[m] += acum
+
+        st.write(f"### 📈 Evolução Estimada: {tipo_selecionado if tipo_selecionado else 'Carteira Global'}")
         fig_evol = go.Figure()
-        fig_evol.add_trace(go.Scatter(y=projecao, name="Patrimônio", fill='tozeroy', line=dict(color='#00FF00', width=3)))
-        fig_evol.add_hline(y=valor_meta, line_dash="dash", line_color="red", annotation_text="Meta de Independência")
+        fig_evol.add_trace(go.Scatter(y=projecao_interativa, name="Patrimônio Filtrado", fill='tozeroy', line=dict(color='#00FF00', width=3)))
+        # Mostra a meta apenas se estiver vendo a carteira global
+        if not tipo_selecionado:
+            fig_evol.add_hline(y=valor_meta, line_dash="dash", line_color="red", annotation_text="Meta Global")
         fig_evol.update_layout(showlegend=True, xaxis_title="Meses", yaxis_title="R$")
         st.plotly_chart(fig_evol, use_container_width=True)
 
