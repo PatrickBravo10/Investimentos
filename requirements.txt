@@ -2,4 +2,5 @@ streamlit
 pandas
 plotly
 streamlit-authenticator
-st-gsheets-connection
+sqlalchemy
+
