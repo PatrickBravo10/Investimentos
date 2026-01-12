@@ -10,20 +10,19 @@ from io import StringIO
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Gestor Financeiro PRO", layout="wide")
 
-# --- FUNÇÃO PARA PEGAR O DÓLAR (DUPLA FONTE + CACHE) ---
+# --- VERIFICAÇÃO DE VERSÃO (Para debug) ---
+st.sidebar.caption(f"Versão do Streamlit: {st.__version__}")
+
+# --- FUNÇÃO DÓLAR ---
 @st.cache_data(ttl=3600)
 def get_dollar_rate():
     try:
         res = requests.get("https://economia.awesomeapi.com.br/json/last/USD-BRL", timeout=5).json()
         return float(res["USDBRL"]["bid"]), res["USDBRL"]["create_date"]
     except:
-        try:
-            res = requests.get("https://open.er-api.com/v6/latest/USD", timeout=5).json()
-            return float(res["rates"]["BRL"]), "Cotação via API Secundária"
-        except:
-            return 5.50, "Cotação Manual (Serviço Indisponível)"
+        return 5.50, "Cotação Manual"
 
-# --- CONFIGURAÇÕES GITHUB (SECRETS) ---
+# --- GITHUB CONFIG ---
 GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
 REPO_NAME = st.secrets["REPO_NAME"]
 HEADERS = {"Authorization": f"token {GITHUB_TOKEN}"}
@@ -43,22 +42,15 @@ def save_git_file(file_path, content_str, sha, message):
     payload = {"message": message, "content": encoded, "sha": sha}
     return requests.put(url, headers=HEADERS, data=json.dumps(payload))
 
-# --- SISTEMA DE LOGIN ---
+# --- LOGIN ---
 names = ["Patrick Bravo"]
 usernames = ["admin"]
 passwords = ["12345"]
-
-authenticator = stauth.Authenticate(
-    {"usernames": {usernames[0]: {"name": names[0], "password": passwords[0]}}},
-    "cookie_invest", "key_invest", cookie_expiry_days=30
-)
-
+authenticator = stauth.Authenticate({"usernames": {usernames[0]: {"name": names[0], "password": passwords[0]}}}, "cookie_invest", "key_invest", 30)
 authenticator.login(location="main")
 
 if st.session_state["authentication_status"]:
     dolar_hoje, data_dolar = get_dollar_rate()
-
-    # Carregar Dados do GitHub
     csv_data, csv_sha = get_git_file("dados.csv")
     metas_csv_data, metas_sha = get_git_file("metas.csv")
 
@@ -68,146 +60,106 @@ if st.session_state["authentication_status"]:
     else:
         df_ativos = pd.DataFrame(columns=["origem", "tipo", "nome", "valor_atual", "aporte_mensal", "juros_mensal"])
 
+    meta_inicial, tempo_inicial = 100000.0, 10
     if metas_csv_data:
-        df_metas_carregado = pd.read_csv(StringIO(metas_csv_data))
-        meta_inicial = float(df_metas_carregado["valor_meta"].iloc[0]) if not df_metas_carregado.empty else 100000.0
-        tempo_inicial = int(df_metas_carregado["tempo_anos"].iloc[0]) if not df_metas_carregado.empty else 10
-    else:
-        meta_inicial, tempo_inicial = 100000.0, 10
+        df_m = pd.read_csv(StringIO(metas_csv_data))
+        if not df_m.empty:
+            meta_inicial, tempo_inicial = float(df_m["valor_meta"].iloc[0]), int(df_m["tempo_anos"].iloc[0])
 
-    # --- UI PRINCIPAL ---
+    # --- UI ---
     st.title("📊 Gestor Financeiro Inteligente")
-    st.info(f"💵 **Dólar Atual:** R$ {dolar_hoje:.2f} | **Data da Cotação:** {data_dolar}")
+    st.info(f"💵 **Dólar:** R$ {dolar_hoje:.2f} | **Atualização:** {data_dolar}")
 
-    st.subheader("📝 Edição da Carteira")
-    st.caption("Dica: Para excluir, selecione a linha e aperte 'Delete'.")
+    # Editor de Dados
+    df_editado = st.data_editor(df_ativos, num_rows="dynamic", use_container_width=True)
     
-    # Editor de Dados com Centavos e Exclusão
-    df_editado = st.data_editor(
-        df_ativos, 
-        num_rows="dynamic", 
-        use_container_width=True,
-        column_config={
-            "valor_atual": st.column_config.NumberColumn("Valor (Unidade)", format="%.2f"),
-            "aporte_mensal": st.column_config.NumberColumn("Aporte (R$)", format="%.2f"),
-            "juros_mensal": st.column_config.NumberColumn("Juros (%)", format="%.2f%%"),
-        }
-    )
-
-    # Cálculo do Valor Efetivo (Conversão Avenue)
-    def calcular_efetivo(row):
+    # Conversão de Valor
+    def conv(row):
         try:
-            val = float(row["valor_atual"])
-            return val * dolar_hoje if str(row.get("origem", "")).strip().lower() == "avenue" else val
+            v = float(row["valor_atual"])
+            return v * dolar_hoje if str(row.get("origem","")).lower() == "avenue" else v
         except: return 0.0
+    df_editado["valor_efetivo"] = df_editado.apply(conv, axis=1)
 
-    df_editado["valor_efetivo"] = df_editado.apply(calcular_efetivo, axis=1)
-
-    # --- SIDEBAR ---
+    # Sidebar
     with st.sidebar:
-        st.header(f"Perfil: {st.session_state['name']}")
-        valor_meta = st.number_input("Meta de Independência (R$)", value=meta_inicial, format="%.2f")
-        tempo_anos = st.slider("Prazo Estimado (Anos)", 1, 50, value=tempo_inicial)
-        
-        if st.button("💾 SALVAR TUDO NO GITHUB"):
-            with st.spinner("Sincronizando..."):
-                cols = ["origem", "tipo", "nome", "valor_atual", "aporte_mensal", "juros_mensal"]
-                csv_str = df_editado[cols].to_csv(index=False)
-                save_git_file("dados.csv", csv_str, csv_sha, "Update ativos")
-                df_metas_save = pd.DataFrame([{"valor_meta": valor_meta, "tempo_anos": tempo_anos}])
-                save_git_file("metas.csv", df_metas_save.to_csv(index=False), metas_sha, "Update metas")
-                st.success("Dados Sincronizados!")
-                st.rerun()
-        
-        st.markdown("---")
+        v_meta = st.number_input("Meta (R$)", value=meta_inicial)
+        t_anos = st.slider("Anos", 1, 50, value=tempo_inicial)
+        if st.button("💾 SALVAR TUDO"):
+            csv_str = df_editado[["origem","tipo","nome","valor_atual","aporte_mensal","juros_mensal"]].to_csv(index=False)
+            save_git_file("dados.csv", csv_str, csv_sha, "Update")
+            save_git_file("metas.csv", pd.DataFrame([{"valor_meta": v_meta, "tempo_anos": t_anos}]).to_csv(index=False), metas_sha, "Update")
+            st.rerun()
         authenticator.logout("Sair", "sidebar")
 
-    # --- INDICADORES PRINCIPAIS (KPIs) ---
+    # --- DASHBOARD INTERATIVO ---
     if not df_editado.empty:
         total_brl = df_editado["valor_efetivo"].sum()
         
-        # Projeção Global (Usada para o card principal)
-        meses = tempo_anos * 12
-        projecao_total = [0.0] * (meses + 1)
-        for _, row in df_editado.iterrows():
-            v, a, j = float(row["valor_efetivo"]), float(row["aporte_mensal"]), (float(row["juros_mensal"])/100)
-            acum = v
-            for m in range(meses + 1):
-                if m > 0: acum = (acum * (1 + j)) + a
-                projecao_total[m] += acum
+        # KPIs
+        c1, c2, c3 = st.columns(3)
+        c1.metric("💰 Total Hoje", f"R$ {total_brl:,.2f}")
+        percent = (total_brl/v_meta)*100 if v_meta > 0 else 0
+        c3.metric("🎯 Meta", f"{percent:.1f}%")
 
+        # --- LÓGICA DE FILTRO POR CLIQUE ---
         st.markdown("---")
-        k1, k2, k3 = st.columns(3)
-        k1.metric("💰 Patrimônio Atual", f"R$ {total_brl:,.2f}")
-        k2.metric(f"🚀 Projetado ({tempo_anos} anos)", f"R$ {projecao_total[-1]:,.2f}")
-        percent_meta = (total_brl / valor_meta) * 100 if valor_meta > 0 else 0
-        k3.metric("🎯 Meta Atingida", f"{percent_meta:.1f}%", delta=f"Faltam R$ {valor_meta - total_brl:,.2f}", delta_color="inverse")
+        st.header("📊 Análise por Tipo (Clique no gráfico para filtrar)")
 
-        # Racional da Conversão
-        with st.expander("💱 Racional da Conversão Cambial"):
-            df_conv = df_editado.copy()
-            df_conv["Cotação Aplicada"] = df_conv["origem"].apply(lambda x: dolar_hoje if str(x).lower()=="avenue" else 1.0)
-            st.dataframe(df_conv[["origem", "nome", "valor_atual", "Cotação Aplicada", "valor_efetivo"]], use_container_width=True)
-
-        # --- INTELIGÊNCIA DE REBALANCEAMENTO ---
-        st.markdown("---")
-        st.header("⚖️ Inteligência de Rebalanceamento")
-        df_aloc = df_editado.groupby("tipo")["valor_efetivo"].sum().reset_index()
-        cols_aloc = st.columns(len(df_aloc) if len(df_aloc) > 0 else 1)
-        
-        for i, row in df_aloc.iterrows():
-            with cols_aloc[i % len(cols_aloc)]:
-                st.write(f"**{row['tipo']}**")
-                meta_t = st.number_input(f"Meta %", 0.0, 100.0, 100.0/len(df_aloc), key=f"m_{row['tipo']}")
-                v_ideal = (meta_t / 100) * total_brl
-                dif = v_ideal - row['valor_efetivo']
-                if dif > 0: st.success(f"Comprar: R$ {dif:,.2f}")
-                else: st.warning(f"Excesso: R$ {abs(dif):,.2f}")
-
-        # --- SEÇÃO INTERATIVA (PLOTLY) ---
-        st.markdown("---")
-        st.header("📊 Análise Dinâmica (Clique no gráfico para filtrar)")
-        
-        if st.button("🔄 Resetar Filtro Gráfico"):
-            if "selecao_tipo" in st.session_state: del st.session_state["selecao_tipo"]
-            st.rerun()
-
-        # Captura de Seleção
+        # Variável para armazenar o tipo selecionado
         tipo_selecionado = None
-        if "selecao_tipo" in st.session_state:
-            sel = st.session_state["selecao_tipo"]
-            if sel and "selection" in sel and "points" in sel["selection"] and len(sel["selection"]["points"]) > 0:
-                tipo_selecionado = sel["selection"]["points"][0]["label"]
 
-        df_visualizacao = df_editado[df_editado["tipo"] == tipo_selecionado].copy() if tipo_selecionado else df_editado.copy()
+        # Verificação robusta da seleção no st.session_state
+        if "donut_tipo" in st.session_state:
+            selecao = st.session_state["donut_tipo"]
+            # Estrutura do Plotly Selection no Streamlit 1.35+
+            if selecao and "selection" in selecao and "points" in selecao["selection"]:
+                points = selecao["selection"]["points"]
+                if len(points) > 0:
+                    tipo_selecionado = points[0]["label"]
 
+        if tipo_selecionado:
+            col_bt1, col_bt2 = st.columns([1, 5])
+            with col_bt1:
+                if st.button("🔄 Limpar Filtro"):
+                    # Reseta manualmente a seleção
+                    del st.session_state["donut_tipo"]
+                    st.rerun()
+            st.info(f"Mostrando detalhes de: **{tipo_selecionado}**")
+            df_plot = df_editado[df_editado["tipo"] == tipo_selecionado].copy()
+        else:
+            df_plot = df_editado.copy()
+
+        # Gráficos
         g1, g2 = st.columns(2)
         with g1:
-            st.write("### 📂 Composição por Tipo")
-            fig_p1 = go.Figure(data=[go.Pie(labels=df_aloc["tipo"], values=df_aloc["valor_efetivo"], hole=.4)])
-            st.plotly_chart(fig_p1, use_container_width=True, on_select="rerun", key="selecao_tipo")
-            
+            df_resumo = df_editado.groupby("tipo")["valor_efetivo"].sum().reset_index()
+            fig1 = go.Figure(data=[go.Pie(labels=df_resumo["tipo"], values=df_resumo["valor_efetivo"], hole=.4)])
+            # O parâmetro on_select="rerun" e a key são obrigatórios
+            st.plotly_chart(fig1, use_container_width=True, on_select="rerun", key="donut_tipo")
+
         with g2:
-            st.write(f"### 💎 Detalhes: {tipo_selecionado if tipo_selecionado else 'Geral'}")
-            fig_p2 = go.Figure(data=[go.Pie(labels=df_visualizacao["nome"], values=df_visualizacao["valor_efetivo"], hole=.4)])
-            st.plotly_chart(fig_p2, use_container_width=True)
+            fig2 = go.Figure(data=[go.Pie(labels=df_plot["nome"], values=df_plot["valor_efetivo"], hole=.4)])
+            st.plotly_chart(fig2, use_container_width=True)
 
-        # Gráfico de Evolução Reativo
-        st.write(f"### 📈 Projeção: {tipo_selecionado if tipo_selecionado else 'Total'}")
-        proj_vis = [0.0] * (meses + 1)
-        for _, row in df_visualizacao.iterrows():
-            v_v, a_v, j_v = float(row["valor_efetivo"]), float(row["aporte_mensal"]), (float(row["juros_mensal"])/100)
-            acum_v = v_v
-            for m in range(meses + 1):
-                if m > 0: acum_v = (acum_v * (1 + j_v)) + a_v
-                proj_vis[m] += acum_v
+        # Projeção
+        st.write("### 📈 Evolução Estimada")
+        meses = t_anos * 12
+        proj = [0.0] * (meses + 1)
+        for _, r in df_plot.iterrows():
+            val, ap, ju = float(r["valor_efetivo"]), float(r["aporte_mensal"]), (float(r["juros_mensal"])/100)
+            acum = val
+            for m in range(meses+1):
+                if m > 0: acum = (acum * (1 + ju)) + ap
+                proj[m] += acum
+        
+        fig3 = go.Figure()
+        fig3.add_trace(go.Scatter(y=proj, fill='tozeroy', line=dict(color='#00FF00'), name="Patrimônio"))
+        st.plotly_chart(fig3, use_container_width=True)
 
-        fig_evol = go.Figure()
-        fig_evol.add_trace(go.Scatter(y=proj_vis, fill='tozeroy', name="Patrimônio", line=dict(color='#00FF00', width=3)))
-        if not tipo_selecionado:
-            fig_evol.add_hline(y=valor_meta, line_dash="dash", line_color="red", annotation_text="Meta")
-        fig_evol.update_layout(showlegend=True, xaxis_title="Meses", yaxis_title="R$")
-        st.plotly_chart(fig_evol, use_container_width=True)
+        # Racional
+        with st.expander("🔍 Ver Tabela de Conversão"):
+            st.dataframe(df_editado[["origem","nome","valor_atual","valor_efetivo"]])
 
 elif st.session_state["authentication_status"] is False:
-    st.error("Login inválido")
+    st.error("Login incorreto")
