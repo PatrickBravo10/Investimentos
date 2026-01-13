@@ -9,9 +9,9 @@ from io import StringIO
 from datetime import datetime
 
 # --- 1. CONFIGURAÇÃO DA PÁGINA ---
-st.set_page_config(page_title="Gestor Financeiro Patrick 2026", layout="wide", page_icon="🏦")
+st.set_page_config(page_title="Gestor Patrick 2026", layout="wide", page_icon="🏦")
 
-# --- 2. FUNÇÕES DE SUPORTE (DÓLAR E GITHUB) ---
+# --- 2. FUNÇÕES DE SUPORTE ---
 @st.cache_data(ttl=3600)
 def get_dollar_rate():
     headers = {'User-Agent': 'Mozilla/5.0'}
@@ -50,34 +50,28 @@ authenticator.login(location="main")
 
 if st.session_state["authentication_status"]:
     
-    # Navegação Lateral Independente
     st.sidebar.title("🎮 Navegação")
     menu = st.sidebar.radio("Ir para:", ["📊 Investimentos", "💸 Fluxo de Caixa"])
     
-    # --- ABA 1: INVESTIMENTOS (RESTAURADA COMPLETA) ---
+    # --- ABA 1: INVESTIMENTOS (IDENTIDADE ORIGINAL PRESERVADA) ---
     if menu == "📊 Investimentos":
         st.title("📊 Gestão de Investimentos Profissional")
         dolar_hoje, data_dolar = get_dollar_rate()
         csv_data, csv_sha = get_git_file("dados.csv")
         metas_csv_data, metas_sha = get_git_file("metas.csv")
 
-        if csv_data:
-            df_ativos = pd.read_csv(StringIO(csv_data))
-            if "origem" not in df_ativos.columns: df_ativos.insert(0, "origem", "B3")
-        else:
-            df_ativos = pd.DataFrame(columns=["origem", "tipo", "nome", "valor_atual", "aporte_mensal", "juros_mensal"])
+        df_ativos = pd.read_csv(StringIO(csv_data)) if csv_data else pd.DataFrame(columns=["origem","tipo","nome","valor_atual","aporte_mensal","juros_mensal"])
+        if "origem" not in df_ativos.columns: df_ativos.insert(0, "origem", "B3")
 
         if metas_csv_data:
             try:
                 df_m = pd.read_csv(StringIO(metas_csv_data))
-                meta_inicial = float(df_m["valor_meta"].iloc[0])
-                tempo_inicial = int(df_m["tempo_anos"].iloc[0])
+                meta_inicial, tempo_inicial = float(df_m["valor_meta"].iloc[0]), int(df_m["tempo_anos"].iloc[0])
             except: meta_inicial, tempo_inicial = 100000.0, 10
         else: meta_inicial, tempo_inicial = 100000.0, 10
 
-        st.info(f"💵 **Dólar Avenue:** R$ {dolar_hoje:.2f} | **Atualização:** {data_dolar}")
+        st.info(f"💵 **Dólar Avenue:** R$ {dolar_hoje:.2f} | **Cotação de:** {data_dolar}")
 
-        # Editor de Investimentos
         with st.expander("📝 Gerenciar Minha Carteira", expanded=True):
             df_editado = st.data_editor(df_ativos, num_rows="dynamic", use_container_width=True,
                 column_config={
@@ -90,12 +84,11 @@ if st.session_state["authentication_status"]:
 
         if not df_editado.empty:
             total_atual = df_editado["valor_efetivo"].sum()
-            
-            # KPIs com Delta
             st.markdown("---")
             k1, k2, k3 = st.columns(3)
-            # Cálculo de Projeção
+            
             with st.sidebar:
+                st.markdown("---")
                 v_meta = st.number_input("Meta Patrimônio (R$)", value=meta_inicial, format="%.2f")
                 t_anos = st.slider("Prazo (Anos)", 1, 50, value=tempo_inicial)
             
@@ -113,31 +106,23 @@ if st.session_state["authentication_status"]:
             prog = (total_atual / v_meta) * 100 if v_meta > 0 else 0
             k3.metric("Atingimento da Meta", f"{prog:.1f}%", delta=f"Faltam R$ {v_meta - total_atual:,.2f}", delta_color="inverse")
 
-            # RACIONAL RETRÁTIL
             with st.expander("💱 Racional da Conversão Cambial", expanded=False):
                 df_rat = df_editado.copy()
                 df_rat["Cotação"] = df_rat["origem"].apply(lambda x: dolar_hoje if str(x).lower().strip()=="avenue" else 1.0)
                 st.dataframe(df_rat[["origem", "nome", "valor_atual", "Cotação", "valor_efetivo"]], use_container_width=True)
 
-            # GRÁFICOS
-            st.markdown("---")
             g1, g2 = st.columns(2)
             with g1:
                 st.subheader("📂 Alocação por Tipo")
                 df_t = df_editado.groupby("tipo")["valor_efetivo"].sum().reset_index()
                 st.plotly_chart(go.Figure(data=[go.Pie(labels=df_t["tipo"], values=df_t["valor_efetivo"], hole=.4)]), use_container_width=True)
             with g2:
-                st.subheader("💎 Composição por Ativo")
-                st.plotly_chart(go.Figure(data=[go.Pie(labels=df_editado["nome"], values=df_editado["valor_efetivo"], hole=.4)]), use_container_width=True)
+                st.subheader("📈 Projeção de Crescimento")
+                fig_ev = go.Figure()
+                fig_ev.add_trace(go.Scatter(y=proj_list, fill='tozeroy', line=dict(color='#00C805', width=3)))
+                fig_ev.add_hline(y=v_meta, line_dash="dash", line_color="#FF4B4B", annotation_text="Sua Meta")
+                st.plotly_chart(fig_ev, use_container_width=True)
 
-            # EVOLUÇÃO
-            st.subheader("📈 Projeção de Crescimento")
-            fig_ev = go.Figure()
-            fig_ev.add_trace(go.Scatter(y=proj_list, fill='tozeroy', line=dict(color='#00C805', width=3)))
-            fig_ev.add_hline(y=v_meta, line_dash="dash", line_color="#FF4B4B", annotation_text="Meta")
-            st.plotly_chart(fig_ev, use_container_width=True)
-
-            # REBALANCEAMENTO
             st.markdown("---")
             st.subheader("⚖️ Inteligência de Rebalanceamento")
             df_bal = df_editado.groupby("tipo")["valor_efetivo"].sum().reset_index()
@@ -151,30 +136,48 @@ if st.session_state["authentication_status"]:
                     else: st.warning(f"Excesso: R$ {abs(dif):,.2f}")
 
         if st.sidebar.button("💾 SALVAR INVESTIMENTOS"):
-            save_git_file("dados.csv", df_editado[["origem","tipo","nome","valor_atual","aporte_mensal","juros_mensal"]].to_csv(index=False), csv_sha, "Sync")
-            save_git_file("metas.csv", pd.DataFrame([{"valor_meta": v_meta, "tempo_anos": t_anos}]).to_csv(index=False), metas_sha, "Sync")
-            st.sidebar.success("Investimentos Salvos!")
+            save_git_file("dados.csv", df_editado[["origem","tipo","nome","valor_atual","aporte_mensal","juros_mensal"]].to_csv(index=False), csv_sha, "Update Invest")
+            save_git_file("metas.csv", pd.DataFrame([{"valor_meta": v_meta, "tempo_anos": t_anos}]).to_csv(index=False), metas_sha, "Update Metas")
+            st.sidebar.success("Investimentos Sincronizados!")
 
-    # --- ABA 2: GASTOS (MÓDULO NOVO) ---
+    # --- ABA 2: FLUXO DE CAIXA (REGRAS DE CAIXA E RECORRÊNCIA) ---
     elif menu == "💸 Fluxo de Caixa":
-        st.title("💸 Controle de Gastos & Receitas 2026")
+        st.title("💸 Controle de Gastos & Receitas")
         gastos_data, gastos_sha = get_git_file("gastos.csv")
         df_gastos = pd.read_csv(StringIO(gastos_data)) if gastos_data else pd.DataFrame(columns=["descricao","categoria","tipo_custo","fluxo","ano","mes","valor","status","recorrente"])
 
-        col_t1, col_t2 = st.columns(2)
-        with col_t1: ano_sel = st.selectbox("Ano", [2025, 2026], index=1)
-        with col_t2: mes_sel = st.selectbox("Mês", ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"], index=datetime.now().month - 1)
+        meses_list = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+        c_t1, c_t2 = st.columns(2)
+        with c_t1: ano_sel = st.selectbox("Ano", [2025, 2026], index=1)
+        with c_t2: mes_sel = st.selectbox("Mês", meses_list, index=datetime.now().month - 1)
 
         df_mes = df_gastos[(df_gastos["ano"] == ano_sel) & (df_gastos["mes"] == mes_sel)].copy()
         
-        # Dashboard de Gastos
-        e = df_mes[df_mes["fluxo"] == "Receita"]["valor"].sum()
-        s = abs(df_mes[df_mes["fluxo"] == "Despesa"]["valor"].sum())
+        # --- CÁLCULO SOMENTE SE PAGO ---
+        df_calculo = df_mes[df_mes["status"] == "Pago"]
+        entrou = df_calculo[df_calculo["fluxo"] == "Receita"]["valor"].sum()
+        saiu = abs(df_calculo[df_calculo["fluxo"] == "Despesa"]["valor"].sum())
         
         m1, m2, m3 = st.columns(3)
-        m1.metric("Entradas", f"R$ {e:,.2f}")
-        m2.metric("Saídas", f"R$ {s:,.2f}", delta_color="inverse")
-        m3.metric("Saldo", f"R$ {e - s:,.2f}")
+        m1.metric("Entradas (Pagas)", f"R$ {entrou:,.2f}")
+        m2.metric("Saídas (Pagas)", f"R$ {saiu:,.2f}", delta_color="inverse")
+        m3.metric("Saldo Real em Conta", f"R$ {entrou - saiu:,.2f}")
+
+        st.markdown("### ⚡ Automação")
+        if st.button("🔄 Replicar Recorrentes para o Mês Seguinte"):
+            idx_mes = meses_list.index(mes_sel)
+            prox_mes = meses_list[0] if idx_mes == 11 else meses_list[idx_mes + 1]
+            ano_prox = ano_sel + 1 if idx_mes == 11 else ano_sel
+            
+            df_rec = df_mes[df_mes["recorrente"] == True].copy()
+            if not df_rec.empty:
+                df_rec["mes"] = prox_mes
+                df_rec["ano"] = ano_prox
+                df_rec["status"] = "Pendente"
+                df_f = pd.concat([df_gastos, df_rec], ignore_index=True).drop_duplicates(subset=["descricao", "ano", "mes"], keep='last')
+                save_git_file("gastos.csv", df_f.to_csv(index=False), gastos_sha, f"Replicado para {prox_mes}")
+                st.success(f"Contas replicadas para {prox_mes}!")
+                st.rerun()
 
         st.markdown("---")
         df_ed_gastos = st.data_editor(df_mes, num_rows="dynamic", use_container_width=True,
@@ -191,10 +194,15 @@ if st.session_state["authentication_status"]:
             df_ed_gastos["mes"] = mes_sel
             df_f = pd.concat([df_outros, df_ed_gastos], ignore_index=True)
             save_git_file("gastos.csv", df_f.to_csv(index=False), gastos_sha, f"Gastos {mes_sel}")
-            st.sidebar.success("Gastos Salvos!")
+            st.sidebar.success("Gastos Sincronizados!")
+            st.rerun()
+
+        # Destaque visual
+        with st.expander("👁️ Ver Tabela de Conferência (Pago em Verde)"):
+            st.dataframe(df_ed_gastos.style.apply(lambda r: ['background-color: #d4edda' if r.status == 'Pago' else '' for _ in r], axis=1), use_container_width=True)
 
     st.sidebar.markdown("---")
-    authenticator.logout("Sair", "sidebar")
+    authenticator.logout("Sair do Sistema", "sidebar")
 
 elif st.session_state["authentication_status"] is False:
     st.error("Login incorreto.")
