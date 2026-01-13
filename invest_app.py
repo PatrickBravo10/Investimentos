@@ -56,7 +56,7 @@ if st.session_state["authentication_status"]:
     meses_map = {"Janeiro":1, "Fevereiro":2, "Março":3, "Abril":4, "Maio":5, "Junho":6, "Julho":7, "Agosto":8, "Setembro":9, "Outubro":10, "Novembro":11, "Dezembro":12}
 
     # ==========================================
-    # ABA 1: INVESTIMENTOS (RESTAURADA TOTAL)
+    # ABA 1: INVESTIMENTOS (IDENTIDADE COMPLETA)
     # ==========================================
     if menu == "📊 Investimentos":
         st.title("📊 Gestão de Patrimônio & Ativos")
@@ -75,7 +75,7 @@ if st.session_state["authentication_status"]:
             except: meta_ini, tempo_ini = 100000.0, 10
         else: meta_ini, tempo_ini = 100000.0, 10
 
-        st.info(f"💵 **Dólar Avenue:** R$ {dolar_hoje:.2f} | **Ref:** {data_dolar}")
+        st.info(f"💵 **Dólar Avenue:** R$ {dolar_hoje:.2f} | **Atualização:** {data_dolar}")
 
         with st.expander("📝 Editar Carteira de Ativos", expanded=True):
             df_ed_inv = st.data_editor(df_inv, num_rows="dynamic", use_container_width=True,
@@ -86,6 +86,7 @@ if st.session_state["authentication_status"]:
                     "origem": st.column_config.SelectboxColumn("Origem", options=["B3", "Avenue", "Outros"])
                 })
 
+        # Lógica de Conversão Avenue -> Real
         df_ed_inv["valor_efetivo"] = df_ed_inv.apply(lambda r: float(r["valor_atual"]) * dolar_hoje if str(r.get("origem","")).lower().strip() == "avenue" else float(r["valor_atual"]), axis=1)
 
         if not df_ed_inv.empty:
@@ -95,6 +96,7 @@ if st.session_state["authentication_status"]:
                 v_meta = st.number_input("Meta Patrimônio (R$)", value=meta_ini, format="%.2f")
                 t_anos = st.slider("Prazo Projeção (Anos)", 1, 50, value=tempo_ini)
 
+            # Projeção
             meses_proj = t_anos * 12
             projs = [0.0] * (meses_proj + 1)
             for _, r in df_ed_inv.iterrows():
@@ -109,7 +111,7 @@ if st.session_state["authentication_status"]:
             k1.metric("Total Carteira", f"R$ {total_inv:,.2f}")
             k2.metric(f"Proj. {t_anos} anos", f"R$ {projs[-1]:,.2f}")
             prog = (total_inv / v_meta) * 100 if v_meta > 0 else 0
-            k3.metric("Atingimento Meta", f"{prog:.1f}%", delta=f"Faltam R$ {v_meta - total_inv:,.2f}", delta_color="inverse")
+            k3.metric("Progresso Meta", f"{prog:.1f}%", delta=f"Faltam R$ {v_meta - total_inv:,.2f}", delta_color="inverse")
 
             with st.expander("💱 Racional da Conversão Cambial", expanded=False):
                 df_rat = df_ed_inv.copy()
@@ -118,30 +120,40 @@ if st.session_state["authentication_status"]:
 
             g1, g2 = st.columns(2)
             with g1:
-                st.subheader("📂 Alocação por Tipo")
+                st.subheader("📂 Alocação")
                 df_t = df_ed_inv.groupby("tipo")["valor_efetivo"].sum().reset_index()
                 fig_inv_pie = px.pie(df_t, names='tipo', values='valor_efetivo', hole=.4)
                 fig_inv_pie.update_traces(textinfo='percent+label', texttemplate='<b>%{label}</b><br><b>%{percent:.1%}</b>', textfont_size=20, insidetextorientation='horizontal')
                 st.plotly_chart(fig_inv_pie, use_container_width=True)
             with g2:
-                st.subheader("📈 Inteligência de Rebalanceamento")
-                df_bal = df_ed_inv.groupby("tipo")["valor_efetivo"].sum().reset_index()
-                for i, row in df_bal.iterrows():
-                    m_perc = 100/len(df_bal)
+                st.subheader("📈 Curva de Crescimento")
+                fig_ev = go.Figure()
+                fig_ev.add_trace(go.Scatter(y=projs, fill='tozeroy', line=dict(color='#00C805', width=3)))
+                fig_ev.add_hline(y=v_meta, line_dash="dash", line_color="red", annotation_text="Meta")
+                st.plotly_chart(fig_ev, use_container_width=True)
+
+            st.markdown("---")
+            st.subheader("⚖️ Inteligência de Rebalanceamento")
+            df_bal = df_ed_inv.groupby("tipo")["valor_efetivo"].sum().reset_index()
+            cols_b = st.columns(len(df_bal) if not df_bal.empty else 1)
+            for i, row in df_bal.iterrows():
+                with cols_b[i % len(cols_b)]:
+                    st.write(f"**{row['tipo']}**")
+                    m_perc = st.number_input(f"Meta %", 0.0, 100.0, 100.0/len(df_bal), key=f"rebal_{row['tipo']}")
                     dif = ((m_perc / 100) * total_inv) - row['valor_efetivo']
                     if dif > 0: st.success(f"Aportar: R$ {dif:,.2f}")
                     else: st.warning(f"Excesso: R$ {abs(dif):,.2f}")
 
         if st.sidebar.button("💾 SALVAR INVESTIMENTOS", use_container_width=True):
-            save_git_file("dados.csv", df_ed_inv[["origem","tipo","nome","valor_atual","aporte_mensal","juros_mensal"]].to_csv(index=False), sha_inv, "Sync")
-            save_git_file("metas.csv", pd.DataFrame([{"valor_meta": v_meta, "tempo_anos": t_anos}]).to_csv(index=False), sha_metas, "Sync")
-            st.sidebar.success("Sincronizado!")
+            save_git_file("dados.csv", df_ed_inv[["origem","tipo","nome","valor_atual","aporte_mensal","juros_mensal"]].to_csv(index=False), sha_inv, "Update")
+            save_git_file("metas.csv", pd.DataFrame([{"valor_meta": v_meta, "tempo_anos": t_anos}]).to_csv(index=False), sha_metas, "Update")
+            st.sidebar.success("Investimentos Sincronizados!")
 
     # ==========================================
-    # ABA 2: FLUXO DE CAIXA (MANUAL + DROPDOWNS)
+    # ABA 2: FLUXO DE CAIXA (MANUAL + BOTÕES)
     # ==========================================
     elif menu == "💸 Fluxo de Caixa":
-        st.title("💸 Controle de Fluxo de Caixa")
+        st.title("💸 Fluxo de Caixa")
         gastos_raw, gastos_sha = get_git_file("gastos.csv")
         df_gastos = pd.read_csv(StringIO(gastos_raw), on_bad_lines='skip') if gastos_raw else pd.DataFrame(columns=["descricao","categoria","tipo_custo","fluxo","ano","mes","valor","status","recorrente"])
 
@@ -200,10 +212,10 @@ if st.session_state["authentication_status"]:
                 st.rerun()
 
     # ==========================================
-    # ABA 3: DASHBOARD & INSIGHTS (GRÁFICO HÍBRIDO E ESPAÇAMENTO)
+    # ABA 3: DASHBOARD & INSIGHTS (GRÁFICOS HÍBRIDOS + LEGIBILIDADE)
     # ==========================================
     elif menu == "📈 Dashboard & Insights":
-        st.title("📈 Dashboard de Performance")
+        st.title("📈 Inteligência de Performance")
         gastos_raw, _ = get_git_file("gastos.csv")
         
         if gastos_raw:
@@ -227,17 +239,15 @@ if st.session_state["authentication_status"]:
                                        line=dict(color='#FF4B4B', width=4), marker=dict(size=10),
                                        text=df_des_h['valor'].apply(lambda x: f"<b>R${x/1000:.1f}k</b>"), textposition='top center',
                                        textfont=dict(size=14, color='#B22222')))
-            
-            fig_h.update_layout(height=500, margin=dict(t=30))
             st.plotly_chart(fig_h, use_container_width=True)
 
             c_g1, c_g2 = st.columns(2)
             with c_g1:
-                # 2. PIZZA: CATEGORIA
+                # 2. PIZZA: CATEGORIA (FONTE GIGANTE)
                 st.subheader("2. % de Gastos por Categoria")
                 df_cat = df[df['fluxo'] == 'Despesa'].groupby('categoria')['valor'].sum().reset_index().sort_values('valor', ascending=False)
                 fig_p_cat = px.pie(df_cat, names='categoria', values='valor', hole=.4)
-                fig_p_cat.update_traces(textinfo='percent+label', texttemplate='<b>%{label}</b><br><b>%{percent:.1%}</b>', textfont_size=20, insidetextorientation='horizontal')
+                fig_p_cat.update_traces(textinfo='percent+label', texttemplate='<b>%{label}</b><br><b>%{percent:.1%}</b>', textfont_size=22, insidetextorientation='horizontal')
                 st.plotly_chart(fig_p_cat, use_container_width=True)
             with c_g2:
                 # 3. BARRAS: TIPO CUSTO
@@ -247,43 +257,41 @@ if st.session_state["authentication_status"]:
                 fig_t.update_traces(textfont=dict(size=18, weight='bold'), textposition='outside')
                 st.plotly_chart(fig_t, use_container_width=True)
 
-            # --- 4. LINHA: ACUMULADO (MÁXIMA LEGIBILIDADE E ESPAÇAMENTO) ---
-            st.subheader("4. Fluxo de Caixa Acumulado (Análise Histórica)")
+            # --- 4. ACUMULADO HÍBRIDO: RECEITA (BARRA) VS DESPESA (LINHA) ---
+            st.subheader("4. Fluxo Acumulado: Receita (Barra) vs Despesa (Linha)")
             df_a = df.groupby(['periodo', 'ano', 'mes_num', 'fluxo'])['valor'].sum().reset_index().sort_values(['ano', 'mes_num'])
             df_a['acumulado'] = df_a.groupby('fluxo')['valor'].cumsum()
+            
             fig_a = go.Figure()
+            df_rec_a = df_a[df_a['fluxo'] == 'Receita']
+            fig_a.add_trace(go.Bar(x=df_rec_a['periodo'], y=df_rec_a['acumulado'], name="Acum. Receita", marker_color='rgba(0, 200, 5, 0.4)',
+                                   text=[f"<b>R${v/1000:.1f}k</b>" for v in df_rec_a['acumulado']], textposition='auto'))
             
-            df_rec_lin = df_a[df_a['fluxo'] == 'Receita']
-            fig_a.add_trace(go.Scatter(x=df_rec_lin['periodo'], y=df_rec_lin['acumulado'], name="Total Receita", mode='lines+markers+text',
-                text=[f"<b>R${v/1000:.1f}k</b>" for v in df_rec_lin['acumulado']], textposition="top center", 
-                textfont=dict(size=15, color='#008000'), line=dict(width=5, color='#00C805')))
+            df_des_a = df_a[df_a['fluxo'] == 'Despesa']
+            fig_a.add_trace(go.Scatter(x=df_des_a['periodo'], y=df_des_a['acumulado'], name="Acum. Despesa", mode='lines+markers+text',
+                                       line=dict(color='#FF4B4B', width=5), text=[f"<b>R${v/1000:.1f}k</b>" for v in df_des_a['acumulado']], 
+                                       textposition="bottom center", textfont=dict(size=15, color='#B22222')))
             
-            df_des_lin = df_a[df_a['fluxo'] == 'Despesa']
-            fig_a.add_trace(go.Scatter(x=df_des_lin['periodo'], y=df_des_lin['acumulado'], name="Total Despesa", mode='lines+markers+text',
-                text=[f"<b>R${v/1000:.1f}k</b>" for v in df_des_lin['acumulado']], textposition="bottom center", 
-                textfont=dict(size=15, color='#B22222'), line=dict(width=5, color='#FF4B4B')))
-            
-            fig_a.update_layout(yaxis=dict(range=[0, df_a['acumulado'].max() * 1.3]), height=500) 
+            fig_a.update_layout(yaxis=dict(range=[0, df_a['acumulado'].max() * 1.3]), height=500)
             st.plotly_chart(fig_a, use_container_width=True)
 
-            # --- 5. INSIGHTS AUTOMÁTICOS ---
             st.markdown("---")
-            st.subheader("🤖 Insights Gerenciais")
+            st.subheader("🤖 Insights Dinâmicos")
             if st.button("💡 GERAR NOVOS INSIGHTS"):
                 tot_r, tot_d = df[df['fluxo']=='Receita']['valor'].sum(), df[df['fluxo']=='Despesa']['valor'].sum()
                 taxa = ((tot_r - tot_d)/tot_r * 100) if tot_r > 0 else 0
                 max_cat = df_cat.iloc[0]['categoria'] if not df_cat.empty else "N/A"
                 pool = [
-                    f"✅ Sua Taxa de Poupança Histórica: **{taxa:.1f}%**.",
-                    f"🚨 Atenção: A categoria **'{max_cat}'** é seu maior gasto acumulado.",
-                    f"💰 Média de Faturamento: **R$ {(tot_r/len(df['periodo'].unique())):,.2f}**.",
-                    f"📉 Custos fixos representam **{(df_t_c[df_t_c['tipo_custo']=='Fixo']['valor'].sum()/tot_d*100):.1f}%** das despesas."
+                    f"✅ Taxa de Poupança: **{taxa:.1f}%**.",
+                    f"🚨 Dreno: **'{max_cat}'** é seu maior gasto.",
+                    f"💰 Média Mensal: **R$ {(tot_r/len(df['periodo'].unique())):,.2f}**.",
+                    f"📉 Fixos: Representam **{(df_t_c[df_t_c['tipo_custo']=='Fixo']['valor'].sum()/tot_d*100):.1f}%** das saídas."
                 ]
                 random.shuffle(pool)
                 st.info(pool[0])
                 st.success(pool[1])
         else:
-            st.warning("Sem dados históricos.")
+            st.warning("Sem dados suficientes.")
 
     st.sidebar.markdown("---")
     authenticator.logout("Sair", "sidebar")
