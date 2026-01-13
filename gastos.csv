@@ -45,9 +45,9 @@ Internet,Contas domésticas,Fixo,Despesa,2026,Março,100.0,⏳ Pendente,True
 Financ. Caixa,Contas domésticas,Fixo,Despesa,2026,Março,470.0,⏳ Pendente,True
 Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026,Março,300.0,⏳ Pendente,True
 Faculdade Patrick,Educação,Variável,Despesa,2026,Março,250.0,⏳ Pendente,True
-Salário mensal,salário,Fixo,Receita,2026,Fevereiro,6100.0,✅ Pago,True
+Salário mensal,salário,Fixo,Receita,2026,Fevereiro,6100.0,⏳ Pendente,True
 Investimento,Investimento,Fixo,Despesa,2026,Fevereiro,4215.0,⏳ Pendente,True
-Conta de Luz,Contas domésticas,Fixo,Despesa,2026,Fevereiro,400.0,✅ Pago,True
+Conta de Luz,Contas domésticas,Fixo,Despesa,2026,Fevereiro,400.0,⏳ Pendente,True
 Conta de gás,Contas domésticas,Fixo,Despesa,2026,Fevereiro,90.0,⏳ Pendente,True
 Conta de água,Contas domésticas,Fixo,Despesa,2026,Fevereiro,50.0,⏳ Pendente,True
 Condominio,Contas domésticas,Fixo,Despesa,2026,Fevereiro,260.0,⏳ Pendente,True
