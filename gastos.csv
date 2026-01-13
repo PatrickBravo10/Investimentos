@@ -1,17 +1,4 @@
 descricao,categoria,tipo_custo,fluxo,ano,mes,valor,status,recorrente
-Salário mensal,salário,Fixo,Receita,2025,Janeiro,4000.0,✅ Pago,True
-Saque aniversário/PLR,salário,Variável,Receita,2025,Janeiro,600.0,✅ Pago,False
-Conta de gás,Contas domésticas,Fixo,Despesa,2025,Janeiro,71.35,✅ Pago,True
-Conta de água,Contas domésticas,Fixo,Despesa,2025,Janeiro,45.0,✅ Pago,True
-Condominio,Contas domésticas,Fixo,Despesa,2025,Janeiro,256.0,✅ Pago,True
-Internet,Contas domésticas,Fixo,Despesa,2025,Janeiro,120.0,✅ Pago,True
-Financ. Caixa,Contas domésticas,Fixo,Despesa,2025,Janeiro,450.0,✅ Pago,True
-Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2025,Janeiro,2800.0,✅ Pago,False
-Faculdade Carine,Educação,Variável,Despesa,2025,Janeiro,200.0,✅ Pago,False
-Faculdade Patrick,Educação,Variável,Despesa,2025,Janeiro,180.0,✅ Pago,False
-Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2025,Janeiro,455.0,✅ Pago,False
-Multa rescisão quinto andar,Aluguel,Variável,Despesa,2025,Janeiro,700.0,✅ Pago,False
-Multa reparo quinto andar,Aluguel,Variável,Despesa,2025,Janeiro,625.0,✅ Pago,False
 Salário mensal,salário,Fixo,Receita,2025,Fevereiro,6843.0,✅ Pago,True
 Conta de Luz,Contas domésticas,Fixo,Despesa,2025,Fevereiro,526.98,✅ Pago,True
 Conta de água,Contas domésticas,Fixo,Despesa,2025,Fevereiro,4.87,✅ Pago,True
@@ -170,3 +157,17 @@ Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2025,Dezembro,2
 Faculdade Patrick,Educação,Variável,Despesa,2025,Dezembro,208.63,✅ Pago,False
 Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2025,Dezembro,283.0,✅ Pago,False
 Cartão de crédito patrick,Cartão de crédito,Variável,Despesa,2025,Dezembro,370.0,✅ Pago,False
+Salário mensal,salário,Fixo,Receita,2025,Janeiro,4000.0,✅ Pago,True
+Saque aniversário/PLR,salário,Variável,Receita,2025,Janeiro,600.0,✅ Pago,False
+Conta de gás,Contas domésticas,Fixo,Despesa,2025,Janeiro,71.35,✅ Pago,True
+Conta de água,Contas domésticas,Fixo,Despesa,2025,Janeiro,45.0,✅ Pago,True
+Condominio,Contas domésticas,Fixo,Despesa,2025,Janeiro,256.0,✅ Pago,True
+Internet,Contas domésticas,Fixo,Despesa,2025,Janeiro,120.0,✅ Pago,True
+Financ. Caixa,Contas domésticas,Fixo,Despesa,2025,Janeiro,450.0,✅ Pago,True
+Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2025,Janeiro,2800.0,✅ Pago,False
+Faculdade Carine,Educação,Variável,Despesa,2025,Janeiro,200.0,✅ Pago,False
+Faculdade Patrick,Educação,Variável,Despesa,2025,Janeiro,180.0,✅ Pago,False
+Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2025,Janeiro,455.0,✅ Pago,False
+Multa rescisão quinto andar,Aluguel,Variável,Despesa,2025,Janeiro,700.0,✅ Pago,False
+Multa reparo quinto andar,Aluguel,Variável,Despesa,2025,Janeiro,625.0,✅ Pago,False
+"Despesas extras (curso, cabelo, lazer, roupa e etc)",Lazer,Variável,Despesa,2025,Janeiro,25.0,✅ Pago,
