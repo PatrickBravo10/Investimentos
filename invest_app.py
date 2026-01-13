@@ -97,17 +97,19 @@ if st.session_state["authentication_status"]:
                 st.subheader("📂 Alocação")
                 df_t = df_ed_inv.groupby("tipo")["valor_efetivo"].sum().reset_index()
                 fig_inv_pie = px.pie(df_t, names='tipo', values='valor_efetivo', hole=.4)
-                # AJUSTE: Apenas % em negrito e maior
-                fig_inv_pie.update_traces(textinfo='percent+label', texttemplate='<b>%{label}</b><br><b>%{percent:.1%}</b>', textfont_size=16)
+                # AJUSTE DE LEGIBILIDADE
+                fig_inv_pie.update_traces(
+                    textinfo='percent+label', 
+                    texttemplate='<b>%{label}</b><br><b>%{percent:.1%}</b>', 
+                    textfont_size=20,
+                    insidetextorientation='horizontal'
+                )
                 st.plotly_chart(fig_inv_pie, use_container_width=True)
             with g2:
-                st.subheader("⚖️ Rebalanceamento")
-                df_bal = df_ed_inv.groupby("tipo")["valor_efetivo"].sum().reset_index()
-                for i, row in df_bal.iterrows():
-                    m_p = 100/len(df_bal)
-                    dif = ((m_p / 100) * total_inv) - row['valor_efetivo']
-                    if dif > 0: st.success(f"Aportar em {row['tipo']}: R$ {dif:,.2f}")
-                    else: st.warning(f"Excesso em {row['tipo']}: R$ {abs(dif):,.2f}")
+                st.subheader("📈 Crescimento")
+                fig_ev = go.Figure()
+                fig_ev.add_trace(go.Scatter(y=df_ed_inv["valor_efetivo"].cumsum(), fill='tozeroy', line=dict(color='#00C805', width=3)))
+                st.plotly_chart(fig_ev, use_container_width=True)
 
         if st.sidebar.button("💾 SALVAR INVESTIMENTOS", use_container_width=True):
             save_git_file("dados.csv", df_ed_inv[["origem","tipo","nome","valor_atual","aporte_mensal","juros_mensal"]].to_csv(index=False), sha_inv, "Sync")
@@ -160,7 +162,7 @@ if st.session_state["authentication_status"]:
             st.rerun()
 
     # ==========================================
-    # ABA 3: DASHBOARD & INSIGHTS (GRÁFICOS AJUSTADOS)
+    # ABA 3: DASHBOARD & INSIGHTS (FOCO NA LEGIBILIDADE)
     # ==========================================
     elif menu == "📈 Dashboard & Insights":
         st.title("📈 Dashboard Inteligente")
@@ -172,36 +174,37 @@ if st.session_state["authentication_status"]:
             df['periodo'] = df['mes'].str[:3] + "/" + df['ano'].astype(str).str[2:]
             df = df.sort_values(['ano', 'mes_num'])
 
-            # 1. BARRAS: RECEITA E DESPESA (COM NÚMEROS)
+            # 1. BARRAS: RECEITA E DESPESA
             st.subheader("1. Receitas vs Despesas Mensais")
             df_h = df.groupby(['periodo', 'ano', 'mes_num', 'fluxo'])['valor'].sum().reset_index().sort_values(['ano', 'mes_num'])
             fig_h = px.bar(df_h, x='periodo', y='valor', color='fluxo', barmode='group',
                           color_discrete_map={'Receita': '#00C805', 'Despesa': '#FF4B4B'},
                           text_auto='.2s')
-            fig_h.update_traces(textfont_size=12, textposition='outside', cliponaxis=False)
+            fig_h.update_traces(textfont=dict(size=14, family="Arial", color="white"), textposition='inside', textfont_weight='bold')
             st.plotly_chart(fig_h, use_container_width=True)
 
             c_g1, c_g2 = st.columns(2)
             with c_g1:
-                # 2. PIZZA: CATEGORIA (APENAS % EM NEGRITO E MAIOR)
+                # 2. PIZZA: CATEGORIA (AJUSTADO PARA SER GRANDE E LEGÍVEL)
                 st.subheader("2. % de Gastos por Categoria")
                 df_cat = df[df['fluxo'] == 'Despesa'].groupby('categoria')['valor'].sum().reset_index().sort_values('valor', ascending=False)
                 fig_p_cat = px.pie(df_cat, names='categoria', values='valor', hole=.4)
                 fig_p_cat.update_traces(
                     textinfo='percent+label', 
                     texttemplate='<b>%{label}</b><br><b>%{percent:.1%}</b>',
-                    textfont_size=16
+                    textfont_size=20, # FONTE AUMENTADA
+                    insidetextorientation='horizontal' # TEXTO SEMPRE RETO
                 )
                 st.plotly_chart(fig_p_cat, use_container_width=True)
             with c_g2:
-                # 3. BARRAS: FIXO VS VARIÁVEL (COM NÚMEROS)
+                # 3. BARRAS: FIXO VS VARIÁVEL
                 st.subheader("3. Perfil de Custos")
                 df_t_c = df[df['fluxo'] == 'Despesa'].groupby('tipo_custo')['valor'].sum().reset_index()
                 fig_t = px.bar(df_t_c, x='tipo_custo', y='valor', color='tipo_custo', text_auto='.3s')
-                fig_t.update_traces(textfont_size=14, textposition='outside')
+                fig_t.update_traces(textfont=dict(size=16, weight='bold'), textposition='outside', cliponaxis=False)
                 st.plotly_chart(fig_t, use_container_width=True)
 
-            # 4. LINHA: ACUMULADO (COM NÚMEROS)
+            # 4. LINHA: ACUMULADO
             st.subheader("4. Fluxo de Caixa Acumulado")
             df_a = df.groupby(['periodo', 'ano', 'mes_num', 'fluxo'])['valor'].sum().reset_index().sort_values(['ano', 'mes_num'])
             df_a['acumulado'] = df_a.groupby('fluxo')['valor'].cumsum()
@@ -211,9 +214,9 @@ if st.session_state["authentication_status"]:
                 fig_a.add_trace(go.Scatter(
                     x=df_f['periodo'], y=df_f['acumulado'], name=f"Total {f}",
                     mode='lines+markers+text',
-                    text=[f"R${v/1000:.1f}k" for v in df_f['acumulado']],
+                    text=[f"<b>R${v/1000:.1f}k</b>" for v in df_f['acumulado']],
                     textposition="top center",
-                    textfont=dict(size=12, color='black'),
+                    textfont=dict(size=14, color='black'),
                     line=dict(width=4, color='#00C805' if f=='Receita' else '#FF4B4B')
                 ))
             st.plotly_chart(fig_a, use_container_width=True)
