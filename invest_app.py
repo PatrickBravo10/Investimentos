@@ -16,10 +16,9 @@ st.set_page_config(page_title="Gestor Patrick PRO 2026", layout="wide", page_ico
 # --- 2. FUNÇÕES DE SUPORTE (DÓLAR E GITHUB) ---
 @st.cache_data(ttl=3600)
 def get_dollar_rate():
-    headers = {'User-Agent': 'Mozilla/5.0'}
     try:
         url = "https://economia.awesomeapi.com.br/json/last/USD-BRL"
-        res = requests.get(url, headers=headers, timeout=5).json()
+        res = requests.get(url, timeout=5).json()
         return float(res["USDBRL"]["bid"]), res["USDBRL"]["create_date"]
     except:
         return 5.85, "Cotação Fixa"
@@ -69,7 +68,6 @@ if st.session_state["authentication_status"]:
         df_inv = pd.read_csv(StringIO(csv_inv)) if csv_inv else pd.DataFrame(columns=["origem","tipo","nome","valor_atual","aporte_mensal","juros_mensal"])
         if "origem" not in df_inv.columns: df_inv.insert(0, "origem", "B3")
 
-        # Recuperar Metas
         if metas_inv:
             try:
                 df_m = pd.read_csv(StringIO(metas_inv))
@@ -82,13 +80,13 @@ if st.session_state["authentication_status"]:
         with st.expander("📝 Editar Carteira de Ativos", expanded=True):
             df_ed_inv = st.data_editor(df_inv, num_rows="dynamic", use_container_width=True,
                 column_config={
-                    "valor_atual": st.column_config.NumberColumn("Valor Original", format="%.2f"),
+                    "valor_atual": st.column_config.NumberColumn("Valor Unidade", format="%.2f"),
                     "aporte_mensal": st.column_config.NumberColumn("Aporte (R$)", format="%.2f"),
                     "juros_mensal": st.column_config.NumberColumn("Juros (%)", format="%.2f%%"),
                     "origem": st.column_config.SelectboxColumn("Origem", options=["B3", "Avenue", "Outros"])
                 })
 
-        # Conversão de Moeda
+        # Conversão Cambial
         df_ed_inv["valor_efetivo"] = df_ed_inv.apply(lambda r: float(r["valor_atual"]) * dolar_hoje if str(r.get("origem","")).lower().strip() == "avenue" else float(r["valor_atual"]), axis=1)
 
         if not df_ed_inv.empty:
@@ -115,23 +113,17 @@ if st.session_state["authentication_status"]:
             prog = (total_inv / v_meta) * 100 if v_meta > 0 else 0
             k3.metric("Progresso Meta", f"{prog:.1f}%", delta=f"Faltam R$ {v_meta - total_inv:,.2f}", delta_color="inverse")
 
-            # Racional da Conversão
-            with st.expander("💱 Racional da Conversão Cambial (Avenue)", expanded=False):
+            with st.expander("💱 Racional da Conversão Cambial", expanded=False):
                 df_rat = df_ed_inv.copy()
                 df_rat["Cotação"] = df_rat["origem"].apply(lambda x: dolar_hoje if str(x).lower().strip()=="avenue" else 1.0)
                 st.dataframe(df_rat[["origem", "nome", "valor_atual", "Cotação", "valor_efetivo"]], use_container_width=True)
 
             g1, g2 = st.columns(2)
             with g1:
-                st.subheader("📂 Alocação por Tipo")
+                st.subheader("📂 Alocação")
                 df_t = df_ed_inv.groupby("tipo")["valor_efetivo"].sum().reset_index()
                 fig_inv_pie = px.pie(df_t, names='tipo', values='valor_efetivo', hole=.4)
-                fig_inv_pie.update_traces(
-                    textinfo='percent+label', 
-                    texttemplate='<b>%{label}</b><br><b>%{percent:.1%}</b>', 
-                    textfont_size=20, # FONTE GRANDE
-                    insidetextorientation='horizontal'
-                )
+                fig_inv_pie.update_traces(textinfo='percent+label', texttemplate='<b>%{label}</b><br><b>%{percent:.1%}</b>', textfont_size=20, insidetextorientation='horizontal')
                 st.plotly_chart(fig_inv_pie, use_container_width=True)
             with g2:
                 st.subheader("📈 Curva de Crescimento")
@@ -140,7 +132,6 @@ if st.session_state["authentication_status"]:
                 fig_ev.add_hline(y=v_meta, line_dash="dash", line_color="red", annotation_text="Meta")
                 st.plotly_chart(fig_ev, use_container_width=True)
 
-            # Inteligência de Rebalanceamento
             st.markdown("---")
             st.subheader("⚖️ Inteligência de Rebalanceamento")
             df_bal = df_ed_inv.groupby("tipo")["valor_efetivo"].sum().reset_index()
@@ -154,20 +145,17 @@ if st.session_state["authentication_status"]:
                     else: st.warning(f"Excesso: R$ {abs(dif):,.2f}")
 
         if st.sidebar.button("💾 SALVAR INVESTIMENTOS", use_container_width=True):
-            save_git_file("dados.csv", df_ed_inv[["origem","tipo","nome","valor_atual","aporte_mensal","juros_mensal"]].to_csv(index=False), sha_inv, "Update")
-            save_git_file("metas.csv", pd.DataFrame([{"valor_meta": v_meta, "tempo_anos": t_anos}]).to_csv(index=False), sha_metas, "Update")
-            st.sidebar.success("Investimentos Salvos!")
+            save_git_file("dados.csv", df_ed_inv[["origem","tipo","nome","valor_atual","aporte_mensal","juros_mensal"]].to_csv(index=False), sha_inv, "Sync")
+            save_git_file("metas.csv", pd.DataFrame([{"valor_meta": v_meta, "tempo_anos": t_anos}]).to_csv(index=False), sha_metas, "Sync")
+            st.sidebar.success("Sincronizado!")
 
     # ==========================================
     # ABA 2: FLUXO DE CAIXA (MANUAL + DROPDOWNS)
     # ==========================================
     elif menu == "💸 Fluxo de Caixa":
-        st.title("💸 Fluxo de Caixa")
+        st.title("💸 Controle de Fluxo de Caixa")
         gastos_raw, gastos_sha = get_git_file("gastos.csv")
-        if gastos_raw:
-            try: df_gastos = pd.read_csv(StringIO(gastos_raw), on_bad_lines='skip')
-            except: df_gastos = pd.DataFrame(columns=["descricao","categoria","tipo_custo","fluxo","ano","mes","valor","status","recorrente"])
-        else: df_gastos = pd.DataFrame(columns=["descricao","categoria","tipo_custo","fluxo","ano","mes","valor","status","recorrente"])
+        df_gastos = pd.read_csv(StringIO(gastos_raw), on_bad_lines='skip') if gastos_raw else pd.DataFrame(columns=["descricao","categoria","tipo_custo","fluxo","ano","mes","valor","status","recorrente"])
 
         c1, c2, c3 = st.columns([1, 1, 1])
         with c1: ano_sel = st.selectbox("Ano", [2024, 2025, 2026], index=2)
@@ -178,26 +166,24 @@ if st.session_state["authentication_status"]:
         def salvar_g_manual(df_s):
             df_s["valor"] = df_s["valor"].abs()
             df_o = df_gastos[~((df_gastos["ano"] == ano_sel) & (df_gastos["mes"] == mes_sel))]
-            df_final = pd.concat([df_o, df_s], ignore_index=True)
-            save_git_file("gastos.csv", df_final.to_csv(index=False), gastos_sha, f"Save {mes_sel}")
+            df_f = pd.concat([df_o, df_s], ignore_index=True)
+            save_git_file("gastos.csv", df_f.to_csv(index=False), gastos_sha, f"Save {mes_sel}")
             st.toast("✅ Dados Salvos!")
 
         with c3:
             st.write(" ")
             st.write(" ")
-            if st.button("💾 SALVAR GASTOS", key="btn_topo", use_container_width=True):
+            if st.button("💾 SALVAR ALTERAÇÕES", key="btn_topo", use_container_width=True):
                 salvar_g_manual(st.session_state.editor_caixa)
                 st.rerun()
 
         df_p = df_mes[df_mes["status"] == "✅ Pago"]
-        entrou = df_p[df_p["fluxo"] == "Receita"]["valor"].sum()
-        saiu = df_p[df_p["fluxo"] == "Despesa"]["valor"].sum()
+        entrou, saiu = df_p[df_p["fluxo"] == "Receita"]["valor"].sum(), df_p[df_p["fluxo"] == "Despesa"]["valor"].sum()
         m1, m2, m3 = st.columns(3)
         m1.metric("Recebido", f"R$ {entrou:,.2f}")
         m2.metric("Saídas Pagas", f"R$ {saiu:,.2f}", delta_color="inverse")
         m3.metric("Saldo Real", f"R$ {entrou - saiu:,.2f}")
 
-        st.markdown("---")
         df_ed_caixa = st.data_editor(df_mes, num_rows="dynamic", use_container_width=True,
             column_config={
                 "valor": st.column_config.NumberColumn("Valor (R$)", format="%.2f"),
@@ -208,7 +194,7 @@ if st.session_state["authentication_status"]:
                 "mes": st.column_config.SelectboxColumn("Mês", options=list(meses_map.keys()))
             }, key="editor_caixa")
 
-        if st.button("💾 SALVAR GASTOS", key="btn_baixo", use_container_width=True):
+        if st.button("💾 SALVAR ALTERAÇÕES", key="btn_baixo", use_container_width=True):
             salvar_g_manual(df_ed_caixa)
             st.rerun()
 
@@ -226,10 +212,10 @@ if st.session_state["authentication_status"]:
                 st.rerun()
 
     # ==========================================
-    # ABA 3: DASHBOARD & INSIGHTS (LEGIBILIDADE MÁXIMA)
+    # ABA 3: DASHBOARD & INSIGHTS (FOCO NA LEGIBILIDADE)
     # ==========================================
     elif menu == "📈 Dashboard & Insights":
-        st.title("📈 Dashboard Inteligente")
+        st.title("📈 Inteligência Financeira e Dashboards")
         gastos_raw, _ = get_git_file("gastos.csv")
         
         if gastos_raw:
@@ -241,59 +227,67 @@ if st.session_state["authentication_status"]:
             # 1. BARRAS: RECEITA E DESPESA
             st.subheader("1. Receitas vs Despesas Mensais")
             df_h = df.groupby(['periodo', 'ano', 'mes_num', 'fluxo'])['valor'].sum().reset_index().sort_values(['ano', 'mes_num'])
-            fig_h = px.bar(df_h, x='periodo', y='valor', color='fluxo', barmode='group',
-                          color_discrete_map={'Receita': '#00C805', 'Despesa': '#FF4B4B'},
-                          text_auto='.2s')
+            fig_h = px.bar(df_h, x='periodo', y='valor', color='fluxo', barmode='group', color_discrete_map={'Receita': '#00C805', 'Despesa': '#FF4B4B'}, text_auto='.2s')
             fig_h.update_traces(textfont=dict(size=16, weight='bold'), textposition='outside', cliponaxis=False)
             st.plotly_chart(fig_h, use_container_width=True)
 
             c_g1, c_g2 = st.columns(2)
             with c_g1:
-                # 2. PIZZA: CATEGORIA (FONTE 20 + NEGRITO)
+                # 2. PIZZA: CATEGORIA
                 st.subheader("2. % de Gastos por Categoria")
                 df_cat = df[df['fluxo'] == 'Despesa'].groupby('categoria')['valor'].sum().reset_index().sort_values('valor', ascending=False)
                 fig_p_cat = px.pie(df_cat, names='categoria', values='valor', hole=.4)
-                fig_p_cat.update_traces(
-                    textinfo='percent+label', 
-                    texttemplate='<b>%{label}</b><br><b>%{percent:.1%}</b>',
-                    textfont_size=20, # FONTE AUMENTADA
-                    insidetextorientation='horizontal'
-                )
+                fig_p_cat.update_traces(textinfo='percent+label', texttemplate='<b>%{label}</b><br><b>%{percent:.1%}</b>', textfont_size=20, insidetextorientation='horizontal')
                 st.plotly_chart(fig_p_cat, use_container_width=True)
             with c_g2:
-                # 3. BARRAS: FIXO VS VARIÁVEL
-                st.subheader("3. Perfil de Custos")
+                # 3. BARRAS: TIPO CUSTO
+                st.subheader("3. Perfil de Custos (Fixo vs Variável)")
                 df_t_c = df[df['fluxo'] == 'Despesa'].groupby('tipo_custo')['valor'].sum().reset_index()
                 fig_t = px.bar(df_t_c, x='tipo_custo', y='valor', color='tipo_custo', text_auto='.3s')
                 fig_t.update_traces(textfont=dict(size=18, weight='bold'), textposition='outside')
                 st.plotly_chart(fig_t, use_container_width=True)
 
-            # 4. LINHA: ACUMULADO (LEITURA FÁCIL)
-            st.subheader("4. Fluxo de Caixa Acumulado")
+            # 4. LINHA: ACUMULADO (MÁXIMA LEGIBILIDADE)
+            st.subheader("4. Fluxo de Caixa Acumulado (Análise Histórica)")
             df_a = df.groupby(['periodo', 'ano', 'mes_num', 'fluxo'])['valor'].sum().reset_index().sort_values(['ano', 'mes_num'])
             df_a['acumulado'] = df_a.groupby('fluxo')['valor'].cumsum()
             fig_a = go.Figure()
-            for f in ['Receita', 'Despesa']:
-                df_f = df_a[df_a['fluxo'] == f]
-                fig_a.add_trace(go.Scatter(
-                    x=df_f['periodo'], y=df_f['acumulado'], name=f"Total {f}",
-                    mode='lines+markers+text',
-                    text=[f"<b>R${v/1000:.1f}k</b>" for v in df_f['acumulado']],
-                    textposition="top center",
-                    textfont=dict(size=14, color='black'),
-                    line=dict(width=4, color='#00C805' if f=='Receita' else '#FF4B4B')
-                ))
+            
+            # Linha Receita (Texto acima)
+            df_rec_lin = df_a[df_a['fluxo'] == 'Receita']
+            fig_a.add_trace(go.Scatter(x=df_rec_lin['periodo'], y=df_rec_lin['acumulado'], name="Total Receita", mode='lines+markers+text',
+                text=[f"<b>R${v/1000:.1f}k</b>" for v in df_rec_lin['acumulado']], textposition="top center", 
+                textfont=dict(size=15, color='#008000'), line=dict(width=5, color='#00C805')))
+            
+            # Linha Despesa (Texto abaixo)
+            df_des_lin = df_a[df_a['fluxo'] == 'Despesa']
+            fig_a.add_trace(go.Scatter(x=df_des_lin['periodo'], y=df_des_lin['acumulado'], name="Total Despesa", mode='lines+markers+text',
+                text=[f"<b>R${v/1000:.1f}k</b>" for v in df_des_lin['acumulado']], textposition="bottom center", 
+                textfont=dict(size=15, color='#B22222'), line=dict(width=5, color='#FF4B4B')))
+            
+            fig_a.update_layout(yaxis=dict(range=[0, df_a['acumulado'].max() * 1.3])) 
             st.plotly_chart(fig_a, use_container_width=True)
 
             st.markdown("---")
             st.subheader("🤖 Insights Gerenciais")
             if st.button("💡 GERAR NOVOS INSIGHTS"):
-                tot_r = df[df['fluxo']=='Receita']['valor'].sum()
-                tot_d = df[df['fluxo']=='Despesa']['valor'].sum()
+                tot_r, tot_d = df[df['fluxo']=='Receita']['valor'].sum(), df[df['fluxo']=='Despesa']['valor'].sum()
                 taxa = ((tot_r - tot_d)/tot_r * 100) if tot_r > 0 else 0
-                st.info(f"✅ Sua Taxa de Poupança Histórica: **{taxa:.1f}%**")
+                max_cat = df_cat.iloc[0]['categoria'] if not df_cat.empty else "N/A"
+                
+                pool = [
+                    f"✅ Sua Taxa de Poupança Histórica: **{taxa:.1f}%**. (Ideal acima de 20%)",
+                    f"🚨 Atenção: A categoria **'{max_cat}'** é seu maior dreno financeiro.",
+                    f"💰 Faturamento médio mensal: **R$ {(tot_r/len(df['periodo'].unique())):,.2f}**.",
+                    f"📉 Custos fixos representam **{(df_t_c[df_t_c['tipo_custo']=='Fixo']['valor'].sum()/tot_d*100):.1f}%** das despesas."
+                ]
+                random.shuffle(pool)
+                st.info(pool[0])
+                st.success(pool[1])
+            else:
+                st.write("Clique no botão para analisar sua saúde financeira.")
         else:
-            st.warning("Sem dados históricos.")
+            st.warning("Sem dados suficientes.")
 
     st.sidebar.markdown("---")
     authenticator.logout("Sair", "sidebar")
