@@ -1,1 +1,37 @@
-descricao,categoria,tipo_custo,fluxo,ano,mes,valor,status,recorrente,fim_recorrencia
+descricao,categoria,tipo_custo,fluxo,ano,mes,valor,status,recorrente
+Salário mensal,salário,Fixo,Receita,2025,Janeiro,4000.00,Pago,True
+Salário mensal,salário,Fixo,Receita,2025,Fevereiro,6843.00,Pago,True
+Salário mensal,salário,Fixo,Receita,2025,Março,4696.65,Pago,True
+Salário mensal,salário,Fixo,Receita,2025,Abril,4216.78,Pago,True
+Salário mensal,salário,Fixo,Receita,2025,Maio,4300.00,Pago,True
+Salário mensal,salário,Fixo,Receita,2025,Junho,1500.00,Pago,True
+Salário mensal,salário,Fixo,Receita,2025,Julho,4469.77,Pago,True
+Salário mensal,salário,Fixo,Receita,2025,Agosto,7200.00,Pago,True
+Salário mensal,salário,Fixo,Receita,2025,Setembro,5434.00,Pago,True
+Salário mensal,salário,Fixo,Receita,2025,Outubro,5389.96,Pago,True
+Salário mensal,salário,Fixo,Receita,2025,Novembro,5508.34,Pago,True
+Salário mensal,salário,Fixo,Receita,2025,Dezembro,5762.45,Pago,True
+Saque aniversário/PLR,salário,Variável,Receita,2025,Janeiro,600.00,Pago,False
+Saque aniversário/PLR,salário,Variável,Receita,2025,Abril,5505.00,Pago,False
+Saque aniversário/PLR,salário,Variável,Receita,2025,Maio,1240.00,Pago,False
+Saque aniversário/PLR,salário,Variável,Receita,2025,Junho,3000.00,Pago,False
+Saque aniversário/PLR,salário,Variável,Receita,2025,Agosto,1000.00,Pago,False
+Saque aniversário/PLR,salário,Variável,Receita,2025,Dezembro,3612.93,Pago,False
+Condominio,Contas domésticas,Fixo,Despesa,2025,Janeiro,256.00,Pago,True
+Financ. Caixa,Contas domésticas,Fixo,Despesa,2025,Janeiro,450.00,Pago,True
+Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2025,Janeiro,2800.00,Pago,False
+Multa rescisão quinto andar,Aluguel,Variável,Despesa,2025,Janeiro,700.00,Pago,False
+Multa reparo quinto andar,Aluguel,Variável,Despesa,2025,Janeiro,625.00,Pago,False
+Salário mensal,salário,Fixo,Receita,2026,Janeiro,6100.00,Pago,True
+Saque aniversário/PLR,salário,Variável,Receita,2026,Janeiro,2515.00,Pago,False
+Investimento,Investimento,Fixo,Despesa,2026,Janeiro,4215.00,Pago,True
+Conta de Luz,Contas domésticas,Fixo,Despesa,2026,Janeiro,400.00,Pago,True
+Conta de gás,Contas domésticas,Fixo,Despesa,2026,Janeiro,90.00,Pago,True
+Conta de água,Contas domésticas,Fixo,Despesa,2026,Janeiro,50.00,Pago,True
+Condominio,Contas domésticas,Fixo,Despesa,2026,Janeiro,260.00,Pago,True
+Internet,Contas domésticas,Fixo,Despesa,2026,Janeiro,100.00,Pago,True
+Financ. Caixa,Contas domésticas,Fixo,Despesa,2026,Janeiro,470.00,Pago,True
+Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026,Janeiro,300.00,Pago,True
+Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026,Janeiro,2244.65,Pago,False
+Faculdade Patrick,Educação,Variável,Despesa,2026,Janeiro,250.00,Pago,True
+Armário cozinha e fogão,Obra casa,Variável,Despesa,2026,Janeiro,283.00,Pago,False
