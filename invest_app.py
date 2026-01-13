@@ -53,7 +53,7 @@ if st.session_state["authentication_status"]:
     st.sidebar.title("🎮 Navegação")
     menu = st.sidebar.radio("Ir para:", ["📊 Investimentos", "💸 Fluxo de Caixa"])
     
-    # --- ABA 1: INVESTIMENTOS (IDENTIDADE ORIGINAL PRESERVADA) ---
+    # --- ABA 1: INVESTIMENTOS (SEM ALTERAÇÕES) ---
     if menu == "📊 Investimentos":
         st.title("📊 Gestão de Investimentos Profissional")
         dolar_hoje, data_dolar = get_dollar_rate()
@@ -120,7 +120,7 @@ if st.session_state["authentication_status"]:
                 st.subheader("📈 Projeção de Crescimento")
                 fig_ev = go.Figure()
                 fig_ev.add_trace(go.Scatter(y=proj_list, fill='tozeroy', line=dict(color='#00C805', width=3)))
-                fig_ev.add_hline(y=v_meta, line_dash="dash", line_color="#FF4B4B", annotation_text="Sua Meta")
+                fig_ev.add_hline(y=v_meta, line_dash="dash", line_color="#FF4B4B", annotation_text="Meta")
                 st.plotly_chart(fig_ev, use_container_width=True)
 
             st.markdown("---")
@@ -138,13 +138,16 @@ if st.session_state["authentication_status"]:
         if st.sidebar.button("💾 SALVAR INVESTIMENTOS"):
             save_git_file("dados.csv", df_editado[["origem","tipo","nome","valor_atual","aporte_mensal","juros_mensal"]].to_csv(index=False), csv_sha, "Update Invest")
             save_git_file("metas.csv", pd.DataFrame([{"valor_meta": v_meta, "tempo_anos": t_anos}]).to_csv(index=False), metas_sha, "Update Metas")
-            st.sidebar.success("Investimentos Sincronizados!")
+            st.sidebar.success("Investimentos Salvos!")
 
-    # --- ABA 2: FLUXO DE CAIXA (REGRAS DE CAIXA E RECORRÊNCIA) ---
+    # --- ABA 2: FLUXO DE CAIXA (COM VISUAL MELHORADO) ---
     elif menu == "💸 Fluxo de Caixa":
         st.title("💸 Controle de Gastos & Receitas")
         gastos_data, gastos_sha = get_git_file("gastos.csv")
         df_gastos = pd.read_csv(StringIO(gastos_data)) if gastos_data else pd.DataFrame(columns=["descricao","categoria","tipo_custo","fluxo","ano","mes","valor","status","recorrente"])
+
+        # Normalizar dados antigos para o novo formato com ícones, se necessário
+        df_gastos["status"] = df_gastos["status"].replace({"Pago": "✅ Pago", "Pendente": "⏳ Pendente"})
 
         meses_list = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
         c_t1, c_t2 = st.columns(2)
@@ -153,14 +156,14 @@ if st.session_state["authentication_status"]:
 
         df_mes = df_gastos[(df_gastos["ano"] == ano_sel) & (df_gastos["mes"] == mes_sel)].copy()
         
-        # --- CÁLCULO SOMENTE SE PAGO ---
-        df_calculo = df_mes[df_mes["status"] == "Pago"]
+        # --- CÁLCULO BASEADO NO ÍCONE ---
+        df_calculo = df_mes[df_mes["status"] == "✅ Pago"]
         entrou = df_calculo[df_calculo["fluxo"] == "Receita"]["valor"].sum()
         saiu = abs(df_calculo[df_calculo["fluxo"] == "Despesa"]["valor"].sum())
         
         m1, m2, m3 = st.columns(3)
-        m1.metric("Entradas (Pagas)", f"R$ {entrou:,.2f}")
-        m2.metric("Saídas (Pagas)", f"R$ {saiu:,.2f}", delta_color="inverse")
+        m1.metric("Recebido (Pago)", f"R$ {entrou:,.2f}")
+        m2.metric("Efetivado (Saídas)", f"R$ {saiu:,.2f}", delta_color="inverse")
         m3.metric("Saldo Real em Conta", f"R$ {entrou - saiu:,.2f}")
 
         st.markdown("### ⚡ Automação")
@@ -173,17 +176,19 @@ if st.session_state["authentication_status"]:
             if not df_rec.empty:
                 df_rec["mes"] = prox_mes
                 df_rec["ano"] = ano_prox
-                df_rec["status"] = "Pendente"
+                # Replica já com o ícone de pendente
+                df_rec["status"] = "⏳ Pendente"
                 df_f = pd.concat([df_gastos, df_rec], ignore_index=True).drop_duplicates(subset=["descricao", "ano", "mes"], keep='last')
                 save_git_file("gastos.csv", df_f.to_csv(index=False), gastos_sha, f"Replicado para {prox_mes}")
                 st.success(f"Contas replicadas para {prox_mes}!")
                 st.rerun()
 
         st.markdown("---")
+        # Editor com visual melhorado nos status
         df_ed_gastos = st.data_editor(df_mes, num_rows="dynamic", use_container_width=True,
             column_config={
                 "valor": st.column_config.NumberColumn("Valor (R$)", format="%.2f"),
-                "status": st.column_config.SelectboxColumn("Status", options=["Pago", "Pendente"]),
+                "status": st.column_config.SelectboxColumn("Status", options=["✅ Pago", "⏳ Pendente"]),
                 "fluxo": st.column_config.SelectboxColumn("Fluxo", options=["Receita", "Despesa"]),
                 "recorrente": st.column_config.CheckboxColumn("Recorrente?")
             })
@@ -196,10 +201,6 @@ if st.session_state["authentication_status"]:
             save_git_file("gastos.csv", df_f.to_csv(index=False), gastos_sha, f"Gastos {mes_sel}")
             st.sidebar.success("Gastos Sincronizados!")
             st.rerun()
-
-        # Destaque visual
-        with st.expander("👁️ Ver Tabela de Conferência (Pago em Verde)"):
-            st.dataframe(df_ed_gastos.style.apply(lambda r: ['background-color: #d4edda' if r.status == 'Pago' else '' for _ in r], axis=1), use_container_width=True)
 
     st.sidebar.markdown("---")
     authenticator.logout("Sair do Sistema", "sidebar")
