@@ -37,20 +37,6 @@ Faculdade Patrick,Educação,Variável,Despesa,2025,Março,208.63,✅ Pago,False
 Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2025,Março,455.0,✅ Pago,False
 Multa rescisão quinto andar,Aluguel,Variável,Despesa,2025,Março,700.0,✅ Pago,False
 Multa reparo quinto andar,Aluguel,Variável,Despesa,2025,Março,690.0,✅ Pago,False
-Salário mensal,salário,Fixo,Receita,2025,Junho,1500.0,✅ Pago,True
-Saque aniversário/PLR,salário,Variável,Receita,2025,Junho,3000.0,✅ Pago,False
-Investimento,Investimento,Fixo,Receita,2025,Junho,1000.0,✅ Pago,True
-Conta de Luz,Contas domésticas,Fixo,Despesa,2025,Junho,208.0,✅ Pago,True
-Conta de gás,Contas domésticas,Fixo,Despesa,2025,Junho,80.0,✅ Pago,True
-Conta de água,Contas domésticas,Fixo,Despesa,2025,Junho,48.0,✅ Pago,True
-Condominio,Contas domésticas,Fixo,Despesa,2025,Junho,256.0,✅ Pago,True
-Internet,Contas domésticas,Fixo,Despesa,2025,Junho,100.0,✅ Pago,True
-Financ. Caixa,Contas domésticas,Fixo,Despesa,2025,Junho,470.0,✅ Pago,True
-Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2025,Junho,2140.0,✅ Pago,False
-Faculdade Carine,Educação,Variável,Despesa,2025,Junho,200.0,✅ Pago,False
-Faculdade Patrick,Educação,Variável,Despesa,2025,Junho,210.31,✅ Pago,False
-Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2025,Junho,455.0,✅ Pago,False
-Academia Carine e Patrick,Saúde,Fixo,Despesa,2025,Junho,180.0,✅ Pago,True
 Salário mensal,salário,Fixo,Receita,2025,Julho,4469.77,✅ Pago,True
 Conta de Luz,Contas domésticas,Fixo,Despesa,2025,Julho,190.0,✅ Pago,True
 Conta de gás,Contas domésticas,Fixo,Despesa,2025,Julho,75.0,✅ Pago,True
@@ -169,3 +155,17 @@ Faculdade Patrick,Educação,Variável,Despesa,2025,Maio,208.63,✅ Pago,False
 Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2025,Maio,455.0,✅ Pago,False
 Multa rescisão quinto andar,Aluguel,Variável,Despesa,2025,Maio,700.0,✅ Pago,False
 Academia Carine e Patrick,Saúde,Fixo,Despesa,2025,Maio,240.0,✅ Pago,True
+Salário mensal,salário,Fixo,Receita,2025,Junho,1500.0,✅ Pago,True
+Saque aniversário/PLR,salário,Variável,Receita,2025,Junho,3000.0,✅ Pago,False
+Investimento,Investimento,Fixo,Despesa,2025,Junho,1000.0,✅ Pago,True
+Conta de Luz,Contas domésticas,Fixo,Despesa,2025,Junho,208.0,✅ Pago,True
+Conta de gás,Contas domésticas,Fixo,Despesa,2025,Junho,80.0,✅ Pago,True
+Conta de água,Contas domésticas,Fixo,Despesa,2025,Junho,48.0,✅ Pago,True
+Condominio,Contas domésticas,Fixo,Despesa,2025,Junho,256.0,✅ Pago,True
+Internet,Contas domésticas,Fixo,Despesa,2025,Junho,100.0,✅ Pago,True
+Financ. Caixa,Contas domésticas,Fixo,Despesa,2025,Junho,470.0,✅ Pago,True
+Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2025,Junho,2140.0,✅ Pago,False
+Faculdade Carine,Educação,Variável,Despesa,2025,Junho,200.0,✅ Pago,False
+Faculdade Patrick,Educação,Variável,Despesa,2025,Junho,210.31,✅ Pago,False
+Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2025,Junho,455.0,✅ Pago,False
+Academia Carine e Patrick,Saúde,Fixo,Despesa,2025,Junho,180.0,✅ Pago,True
