@@ -171,7 +171,7 @@ Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026.0,Janeiro,300.0,✅ Pag
 Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Janeiro,2244.65,✅ Pago,False
 Faculdade Patrick,Educação,Variável,Despesa,2026.0,Janeiro,250.0,✅ Pago,False
 Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Janeiro,283.0,✅ Pago,False
-Salário mensal,salário,Fixo,Receita,2026.0,Fevereiro,6100.0,✅ Pago,True
+Salário mensal,salário,Fixo,Receita,2026.0,Fevereiro,6100.0,⏳ Pendente,True
 Investimento,Investimento,Fixo,Despesa,2026.0,Fevereiro,4215.0,⏳ Pendente,True
 Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Fevereiro,400.0,⏳ Pendente,True
 Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Fevereiro,90.0,⏳ Pendente,True
