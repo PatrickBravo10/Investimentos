@@ -158,7 +158,7 @@ Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2025.0,Janeiro,455
 Multa rescisão quinto andar,Aluguel,Variável,Despesa,2025.0,Janeiro,700.0,✅ Pago,False
 Multa reparo quinto andar,Aluguel,Variável,Despesa,2025.0,Janeiro,625.0,✅ Pago,False
 "Despesas extras (curso, cabelo, lazer, roupa e etc)",Lazer,Variável,Despesa,2025.0,Janeiro,25.0,✅ Pago,
-Salário mensal,salário,Fixo,Receita,2026.0,Janeiro,6100.0,✅ Pago,True
+Salário mensal,salário,Fixo,Receita,2026.0,Janeiro,6150.0,✅ Pago,True
 Saque aniversário/PLR,salário,Variável,Receita,2026.0,Janeiro,2515.0,✅ Pago,False
 Investimento,Investimento,Fixo,Despesa,2026.0,Janeiro,4215.0,✅ Pago,True
 Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Janeiro,400.0,✅ Pago,True
