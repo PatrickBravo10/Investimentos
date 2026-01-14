@@ -59,7 +59,7 @@ if st.session_state["authentication_status"]:
     # ABA 1: INVESTIMENTOS (SISTEMA COMPLETO)
     # ==========================================
     if menu == "📊 Investimentos":
-        st.title("📊 Gestão de Patrimônio & Ativos")
+        st.title("📊 Gestão de Património & Ativos")
         dolar_hoje, data_dolar = get_dollar_rate()
         csv_inv, sha_inv = get_git_file("dados.csv")
         metas_inv, sha_metas = get_git_file("metas.csv")
@@ -78,7 +78,12 @@ if st.session_state["authentication_status"]:
         
         with st.expander("📝 Editar Carteira de Ativos", expanded=True):
             df_ed_inv = st.data_editor(df_inv, num_rows="dynamic", use_container_width=True, key="editor_inv",
-                column_config={"origem": st.column_config.SelectboxColumn("Origem", options=["B3", "Avenue", "Outros"])})
+                column_config={
+                    "origem": st.column_config.SelectboxColumn("Origem", options=["B3", "Avenue", "Outros"]),
+                    "valor_atual": st.column_config.NumberColumn("Valor Original", format="%.2f"),
+                    "aporte_mensal": st.column_config.NumberColumn("Aporte (R$)", format="%.2f"),
+                    "juros_mensal": st.column_config.NumberColumn("Juros (%)", format="%.2f")
+                })
         
         df_ed_inv["valor_efetivo"] = df_ed_inv.apply(lambda r: float(r["valor_atual"]) * dolar_hoje if str(r.get("origem","")).lower().strip() == "avenue" else float(r["valor_atual"]), axis=1)
 
@@ -86,7 +91,7 @@ if st.session_state["authentication_status"]:
             total_inv = df_ed_inv["valor_efetivo"].sum()
             with st.sidebar:
                 st.markdown("---")
-                v_meta = st.number_input("Meta Patrimônio (R$)", value=meta_ini, format="%.2f")
+                v_meta = st.number_input("Meta Património (R$)", value=meta_ini, format="%.2f")
                 t_anos = st.slider("Prazo Projeção (Anos)", 1, 50, value=tempo_ini)
 
             st.markdown("---")
@@ -108,7 +113,7 @@ if st.session_state["authentication_status"]:
                 fig_inv_pie.update_traces(textinfo='percent+label', texttemplate='<b>%{label}</b><br><b>%{percent:.1%}</b>', textfont_size=14)
                 st.plotly_chart(fig_inv_pie, use_container_width=True)
             with g2:
-                st.subheader("⚖️ Rebalanceamento Inteligente")
+                st.subheader("⚖️ Rebalanceamento Sugerido")
                 df_bal = df_ed_inv.groupby("tipo")["valor_efetivo"].sum().reset_index()
                 for i, row in df_bal.iterrows():
                     m_p = 100/len(df_bal)
@@ -122,7 +127,7 @@ if st.session_state["authentication_status"]:
             st.sidebar.success("Investimentos Salvos!")
 
     # ==========================================
-    # ABA 2: FLUXO DE CAIXA (SISTEMA DE GASTOS)
+    # ABA 2: FLUXO DE CAIXA (MANUAL + 2 BOTÕES)
     # ==========================================
     elif menu == "💸 Fluxo de Caixa":
         st.title("💸 Fluxo de Caixa")
@@ -130,8 +135,8 @@ if st.session_state["authentication_status"]:
         df_gastos = pd.read_csv(StringIO(gastos_raw), on_bad_lines='skip') if gastos_raw else pd.DataFrame(columns=["descricao","categoria","tipo_custo","fluxo","ano","mes","valor","status","recorrente"])
 
         c1, c2, c3 = st.columns([1, 1, 1])
-        with c1: ano_sel = st.selectbox("Filtrar Ano", [2024, 2025, 2026], index=2)
-        with c2: mes_sel = st.selectbox("Filtrar Mês", list(meses_map.keys()), index=datetime.now().month - 1)
+        with c1: ano_sel = st.selectbox("Ano", [2024, 2025, 2026], index=2)
+        with c2: mes_sel = st.selectbox("Mês", list(meses_map.keys()), index=datetime.now().month - 1)
         
         df_mes = df_gastos[(df_gastos["ano"] == ano_sel) & (df_gastos["mes"] == mes_sel)].copy()
 
@@ -140,7 +145,7 @@ if st.session_state["authentication_status"]:
             df_o = df_gastos[~((df_gastos["ano"] == ano_sel) & (df_gastos["mes"] == mes_sel))]
             df_f = pd.concat([df_o, df_s], ignore_index=True)
             save_git_file("gastos.csv", df_f.to_csv(index=False), gastos_sha, f"Save {mes_sel}")
-            st.toast("✅ Dados Salvos no GitHub!")
+            st.toast("✅ Salvo no GitHub!")
 
         with c3:
             st.write(" ")
@@ -152,8 +157,8 @@ if st.session_state["authentication_status"]:
         df_p = df_mes[df_mes["status"] == "✅ Pago"]
         entrou, saiu = df_p[df_p["fluxo"] == "Receita"]["valor"].sum(), df_p[df_p["fluxo"] == "Despesa"]["valor"].sum()
         m1, m2, m3 = st.columns(3)
-        m1.metric("Recebido (Pago)", f"R$ {entrou:,.2f}")
-        m2.metric("Saído (Pago)", f"R$ {saiu:,.2f}", delta_color="inverse")
+        m1.metric("Recebido", f"R$ {entrou:,.2f}")
+        m2.metric("Saídas Pagas", f"R$ {saiu:,.2f}", delta_color="inverse")
         m3.metric("Saldo Real", f"R$ {entrou - saiu:,.2f}")
 
         st.markdown("---")
@@ -169,7 +174,7 @@ if st.session_state["authentication_status"]:
             st.rerun()
             
         st.markdown("---")
-        if st.button("🔄 Replicar Recorrentes para o Próximo Mês"):
+        if st.button("🔄 Replicar Recorrentes para o Mês Seguinte"):
             idx_m = list(meses_map.keys()).index(mes_sel)
             p_m = list(meses_map.keys())[0] if idx_m == 11 else list(meses_map.keys())[idx_m + 1]
             p_a = ano_sel + 1 if idx_m == 11 else ano_sel
@@ -177,15 +182,15 @@ if st.session_state["authentication_status"]:
             if not df_rec.empty:
                 df_rec["mes"], df_rec["ano"], df_rec["status"] = p_m, p_a, "⏳ Pendente"
                 df_f = pd.concat([df_gastos, df_rec], ignore_index=True).drop_duplicates(subset=["descricao","ano","mes"], keep='last')
-                save_git_file("gastos.csv", df_f.to_csv(index=False), gastos_sha, f"Replicar para {p_m}")
-                st.success(f"Itens recorrentes copiados para {p_m}!")
+                save_git_file("gastos.csv", df_f.to_csv(index=False), gastos_sha, f"Replicar")
+                st.success(f"Recorrentes copiados para {p_m}!")
                 st.rerun()
 
     # ==========================================
-    # ABA 3: DASHBOARD (LEGIBILIDADE 1,5k / FONTE 14)
+    # ABA 3: DASHBOARD (FONTE 14 / FORMATO 1,5k)
     # ==========================================
     elif menu == "📈 Dashboard & Insights":
-        st.title("📈 Inteligência Financeira")
+        st.title("📈 Performance Financeira")
         gastos_raw, _ = get_git_file("gastos.csv")
         
         if gastos_raw:
@@ -194,7 +199,7 @@ if st.session_state["authentication_status"]:
             df['periodo'] = df['mes'].str[:3] + "/" + df['ano'].astype(str).str[2:]
             df = df.sort_values(['ano', 'mes_num'])
 
-            # 1. BARRAS LADO A LADO: RECEITA VS DESPESA
+            # 1. RECEITAS VS DESPESAS (BARRAS LADO A LADO)
             st.subheader("1. Receitas vs Despesas Mensais")
             df_h = df.groupby(['periodo', 'ano', 'mes_num', 'fluxo'])['valor'].sum().reset_index().sort_values(['ano', 'mes_num'])
             df_h['texto'] = df_h['valor'].apply(lambda x: f"<b>{x/1000:,.1f}k</b>".replace('.', ','))
@@ -204,8 +209,8 @@ if st.session_state["authentication_status"]:
             fig_h.update_traces(textfont=dict(size=14), textposition='outside', cliponaxis=False)
             st.plotly_chart(fig_h, use_container_width=True)
 
-            col_g1, col_g2 = st.columns(2)
-            with col_g1:
+            c_g1, c_g2 = st.columns(2)
+            with c_g1:
                 # 2. ROSCA (DONUT) - CATEGORIA
                 st.subheader("2. % de Gastos por Categoria")
                 df_cat = df[df['fluxo'] == 'Despesa'].groupby('categoria')['valor'].sum().reset_index().sort_values('valor', ascending=False)
@@ -215,13 +220,12 @@ if st.session_state["authentication_status"]:
                 fig_p_cat.update_layout(showlegend=False, margin=dict(t=80, b=80, l=100, r=100))
                 st.plotly_chart(fig_p_cat, use_container_width=True)
             
-            with col_g2:
-                # 3. PERFIL DE CUSTOS (BARRA)
+            with c_g2:
+                # 3. PERFIL DE CUSTOS
                 st.subheader("3. Perfil de Custos (Fixo vs Variável)")
                 df_t_c = df[df['fluxo'] == 'Despesa'].groupby('tipo_custo')['valor'].sum().reset_index()
                 df_t_c['texto'] = df_t_c['valor'].apply(lambda x: f"<b>{x/1000:,.1f}k</b>".replace('.', ','))
-                fig_t = px.bar(df_t_c, x='tipo_custo', y='valor', color='tipo_custo', text='texto',
-                               color_discrete_map={'Fixo': '#1F77B4', 'Variável': '#FF7F0E'})
+                fig_t = px.bar(df_t_c, x='tipo_custo', y='valor', color='tipo_custo', text='texto')
                 fig_t.update_traces(textfont=dict(size=14), textposition='outside')
                 st.plotly_chart(fig_t, use_container_width=True)
 
@@ -245,7 +249,7 @@ if st.session_state["authentication_status"]:
             fig_a.update_layout(yaxis=dict(range=[0, df_a['acumulado'].max() * 1.3]), height=500)
             st.plotly_chart(fig_a, use_container_width=True)
 
-            # 5. INSIGHTS DINÂMICOS
+            # 5. INSIGHTS
             st.markdown("---")
             st.subheader("🤖 Insights Gerenciais")
             if st.button("💡 GERAR NOVOS INSIGHTS"):
@@ -253,20 +257,16 @@ if st.session_state["authentication_status"]:
                 taxa = ((tot_r - tot_d)/tot_r * 100) if tot_r > 0 else 0
                 max_cat = df_cat.iloc[0]['categoria'] if not df_cat.empty else "N/A"
                 pool = [
-                    f"✅ Taxa de Poupança Histórica: **{taxa:.1f}%**. (Ideal é acima de 20%)",
-                    f"🚨 Alerta de Gasto: A categoria **'{max_cat}'** é seu maior dreno financeiro.",
-                    f"💰 Média de Rendimento: Você fatura em média **R$ {(tot_r/len(df['periodo'].unique())):,.2f}** por mês.",
-                    f"📉 Perfil: Custos Fixos são **{(df_t_c[df_t_c['tipo_custo']=='Fixo']['valor'].sum()/tot_d*100):.1f}%** das suas despesas."
+                    f"✅ Taxa de Poupança Histórica: **{taxa:.1f}%**.",
+                    f"🚨 Maior Gasto: A categoria **'{max_cat}'** domina as tuas despesas.",
+                    f"💰 Rendimento Médio: Facturas em média **R$ {(tot_r/len(df['periodo'].unique())):,.2f}** mensalmente."
                 ]
                 random.shuffle(pool)
                 st.info(pool[0]); st.success(pool[1])
             else:
-                st.write("Clique no botão para analisar seus dados.")
+                st.write("Clica no botão para analisar os teus dados.")
         else:
-            st.warning("Sem dados suficientes no arquivo de gastos.")
+            st.warning("Sem dados suficientes.")
 
     st.sidebar.markdown("---")
-    authenticator.logout("Sair do Sistema", "sidebar")
-
-elif st.session_state["authentication_status"] is False:
-    st.error("Login ou senha incorretos.")
+    authenticator.logout("Sair", "sidebar")
