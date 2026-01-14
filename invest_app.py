@@ -123,7 +123,7 @@ if st.session_state["authentication_status"]:
                 st.subheader("📂 Alocação por Tipo")
                 df_t = df_ed_inv.groupby("tipo")["valor_efetivo"].sum().reset_index()
                 fig_inv_pie = px.pie(df_t, names='tipo', values='valor_efetivo', hole=.4)
-                fig_inv_pie.update_traces(textinfo='percent+label', texttemplate='<b>%{label}</b><br><b>%{percent:.1%}</b>', textfont_size=20, insidetextorientation='horizontal')
+                fig_inv_pie.update_traces(textinfo='percent+label', texttemplate='<b>%{label}</b><br><b>%{percent:.1%}</b>', textfont_size=16, insidetextorientation='horizontal')
                 st.plotly_chart(fig_inv_pie, use_container_width=True)
             with g2:
                 st.subheader("📈 Curva de Crescimento")
@@ -240,7 +240,7 @@ if st.session_state["authentication_status"]:
                 fig_p_cat.update_traces(
                     textinfo='percent+label', 
                     texttemplate='<b>%{label}</b><br><b>%{percent:.1%}</b>',
-                    textfont_size=20, 
+                    textfont_size=16, 
                     textposition='outside'
                 )
                 fig_p_cat.update_layout(showlegend=False, margin=dict(t=80, b=80, l=80, r=80)) 
@@ -251,7 +251,7 @@ if st.session_state["authentication_status"]:
                 st.subheader("3. Fixo vs Variável")
                 df_t_c = df[df['fluxo'] == 'Despesa'].groupby('tipo_custo')['valor'].sum().reset_index()
                 fig_t = px.bar(df_t_c, x='tipo_custo', y='valor', color='tipo_custo', text_auto='.3s')
-                fig_t.update_traces(textfont=dict(size=18, weight='bold'), textposition='outside')
+                fig_t.update_traces(textfont=dict(size=14, weight='bold'), textposition='outside')
                 st.plotly_chart(fig_t, use_container_width=True)
 
             # --- 4. ACUMULADO HÍBRIDO (RECEITA BARRA / DESPESA LINHA) ---
@@ -295,3 +295,4 @@ if st.session_state["authentication_status"]:
 
     st.sidebar.markdown("---")
     authenticator.logout("Sair", "sidebar")
+
