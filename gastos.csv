@@ -171,3 +171,15 @@ Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026.0,Janeiro,300.0,✅ Pag
 Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Janeiro,2244.65,✅ Pago,True
 Faculdade Patrick,Educação,Variável,Despesa,2026.0,Janeiro,250.0,✅ Pago,True
 Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Janeiro,283.0,✅ Pago,True
+Salário mensal,salário,Fixo,Receita,2026.0,Fevereiro,6150.0,⏳ Pendente,True
+Investimento,Investimento,Fixo,Despesa,2026.0,Fevereiro,4215.0,⏳ Pendente,True
+Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Fevereiro,400.0,⏳ Pendente,True
+Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Fevereiro,90.0,⏳ Pendente,True
+Conta de água,Contas domésticas,Fixo,Despesa,2026.0,Fevereiro,50.0,⏳ Pendente,True
+Condominio,Contas domésticas,Fixo,Despesa,2026.0,Fevereiro,260.0,⏳ Pendente,True
+Internet,Contas domésticas,Fixo,Despesa,2026.0,Fevereiro,100.0,⏳ Pendente,True
+Financ. Caixa,Contas domésticas,Fixo,Despesa,2026.0,Fevereiro,470.0,⏳ Pendente,True
+Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026.0,Fevereiro,300.0,⏳ Pendente,True
+Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Fevereiro,2244.65,⏳ Pendente,True
+Faculdade Patrick,Educação,Variável,Despesa,2026.0,Fevereiro,250.0,⏳ Pendente,True
+Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Fevereiro,283.0,⏳ Pendente,True
