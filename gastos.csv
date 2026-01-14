@@ -168,6 +168,6 @@ Condominio,Contas domésticas,Fixo,Despesa,2026.0,Janeiro,260.0,✅ Pago,True
 Internet,Contas domésticas,Fixo,Despesa,2026.0,Janeiro,100.0,✅ Pago,True
 Financ. Caixa,Contas domésticas,Fixo,Despesa,2026.0,Janeiro,470.0,✅ Pago,True
 Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026.0,Janeiro,300.0,✅ Pago,True
-Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Janeiro,2244.65,✅ Pago,False
-Faculdade Patrick,Educação,Variável,Despesa,2026.0,Janeiro,250.0,✅ Pago,False
-Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Janeiro,283.0,✅ Pago,False
+Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Janeiro,2244.65,✅ Pago,True
+Faculdade Patrick,Educação,Variável,Despesa,2026.0,Janeiro,250.0,✅ Pago,True
+Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Janeiro,283.0,✅ Pago,True
