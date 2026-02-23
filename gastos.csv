@@ -301,15 +301,15 @@ Financ. Caixa,Contas domésticas,Fixo,Despesa,2026.0,Fevereiro,470.0,✅ Pago,Tr
 Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Fevereiro,2110.02,✅ Pago,True
 Faculdade Patrick,Educação,Variável,Despesa,2026.0,Fevereiro,236.01,✅ Pago,True
 Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Fevereiro,283.0,✅ Pago,True
-Salário mensal,salário,Fixo,Receita,2026.0,Março,10855.96,✅ Pago,True
-Investimento,Investimento,Fixo,Despesa,2026.0,Março,6718.08,✅ Pago,True
-Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Março,464.68,✅ Pago,True
-Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Março,75.44,✅ Pago,True
-Conta de água,Contas domésticas,Fixo,Despesa,2026.0,Março,50.0,✅ Pago,True
-Condominio,Contas domésticas,Fixo,Despesa,2026.0,Março,260.0,✅ Pago,True
-Internet,Contas domésticas,Fixo,Despesa,2026.0,Março,99.0,✅ Pago,True
-Financ. Caixa,Contas domésticas,Fixo,Despesa,2026.0,Março,470.0,✅ Pago,True
+Salário mensal,salário,Fixo,Receita,2026.0,Março,10855.96,⏳ Pendente,True
+Investimento,Investimento,Fixo,Despesa,2026.0,Março,6718.08,⏳ Pendente,True
+Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Março,464.68,⏳ Pendente,True
+Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Março,75.44,⏳ Pendente,True
+Conta de água,Contas domésticas,Fixo,Despesa,2026.0,Março,50.0,⏳ Pendente,True
+Condominio,Contas domésticas,Fixo,Despesa,2026.0,Março,260.0,⏳ Pendente,True
+Internet,Contas domésticas,Fixo,Despesa,2026.0,Março,99.0,⏳ Pendente,True
+Financ. Caixa,Contas domésticas,Fixo,Despesa,2026.0,Março,470.0,⏳ Pendente,True
 Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026.0,Março,0.0,⏳ Pendente,True
-Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Março,1900.0,✅ Pago,True
-Faculdade Patrick,Educação,Variável,Despesa,2026.0,Março,250.0,✅ Pago,True
-Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Março,283.0,✅ Pago,True
+Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Março,1900.0,⏳ Pendente,True
+Faculdade Patrick,Educação,Variável,Despesa,2026.0,Março,250.0,⏳ Pendente,True
+Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Março,283.0,⏳ Pendente,True
