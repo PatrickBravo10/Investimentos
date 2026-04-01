@@ -1,14 +1,14 @@
 origem,tipo,nome,valor_atual,aporte_mensal,juros_mensal
-B3,Fundos Imobiliários,ALZR11,3380.13,400.0,1.0
-B3,Fundos Imobiliários,KNCR11,7258.8,400.0,1.0
-B3,Fundos Imobiliários,MXRF11,10245.69,400.0,1.0
-Avenue,Ações Internacionais,AAPL,140.89,200.0,1.0
-Avenue,ETF´s Internacionais,IVV,106.68,200.0,1.0
-Avenue,ETF´s Internacionais,IVV,77.83,200.0,2.0
-Avenue,Ações Internacionais,AMZN,39.71,200.0,1.0
+B3,Fundos Imobiliários,ALZR11,3380.13,300.0,1.0
+B3,Fundos Imobiliários,KNCR11,7258.8,300.0,1.0
+B3,Fundos Imobiliários,MXRF11,10245.69,300.0,1.0
+Avenue,Ações Internacionais,AAPL,140.89,100.0,1.0
+Avenue,ETF´s Internacionais,IVV,106.68,100.0,1.0
+Avenue,ETF´s Internacionais,IVV,77.83,100.0,2.0
+Avenue,Ações Internacionais,AMZN,39.71,100.0,1.0
 Avenue,Ações Internacionais,META,512.77,200.0,1.0
 Avenue,Ações Internacionais,V,373.21,200.0,1.0
 B3,Renda Fixa,LCA/LCI,9359.13,0.0,1.0
-B3,Renda Fixa,CDB,1615.55,0.0,1.0
+B3,Renda Fixa,CDB,1615.55,300.0,1.0
 Outros,Renda Fixa,Rendimento,139.68,0.0,0.0
 Outros,Renda Fixa,Saldo Livre,113.97,0.0,0.0
