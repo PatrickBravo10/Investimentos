@@ -305,12 +305,12 @@ PLR,salário,Variável,Receita,2026.0,Abril,7225.85,✅ Pago,
 Salário mensal,salário,Fixo,Receita,2026.0,Maio,5415.0,✅ Pago,True
 Investimento,Investimento,Fixo,Despesa,2026.0,Maio,1600.0,✅ Pago,True
 Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Maio,459.28,✅ Pago,True
-Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Maio,101.83,⏳ Pendente,True
-Conta de água,Contas domésticas,Fixo,Despesa,2026.0,Maio,50.0,⏳ Pendente,True
+Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Maio,101.83,✅ Pago,True
+Conta de água,Contas domésticas,Fixo,Despesa,2026.0,Maio,50.0,✅ Pago,True
 Condominio,Contas domésticas,Fixo,Despesa,2026.0,Maio,270.0,⏳ Pendente,True
-Internet,Contas domésticas,Fixo,Despesa,2026.0,Maio,99.0,⏳ Pendente,True
+Internet,Contas domésticas,Fixo,Despesa,2026.0,Maio,99.0,✅ Pago,True
 Financ. Caixa,Contas domésticas,Fixo,Despesa,2026.0,Maio,470.0,✅ Pago,True
 Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026.0,Maio,0.0,✅ Pago,True
 Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Maio,2000.0,✅ Pago,True
-Faculdade Patrick,Educação,Variável,Despesa,2026.0,Maio,250.0,⏳ Pendente,True
+Faculdade Patrick,Educação,Variável,Despesa,2026.0,Maio,250.0,✅ Pago,True
 Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Maio,283.0,✅ Pago,True
