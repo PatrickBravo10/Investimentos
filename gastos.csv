@@ -302,7 +302,7 @@ Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026.0,Maio,0.0,✅ Pago,Tru
 Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Maio,2000.0,✅ Pago,True
 Faculdade Patrick,Educação,Variável,Despesa,2026.0,Maio,250.0,✅ Pago,True
 Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Maio,283.0,✅ Pago,True
-Salário mensal,salário,Fixo,Receita,2026.0,Junho,5400.0,⏳ Pendente,True
+Salário mensal,salário,Fixo,Receita,2026.0,Junho,5396.18,✅ Pago,True
 Investimento,Investimento,Fixo,Despesa,2026.0,Junho,2300.0,⏳ Pendente,True
 Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Junho,357.85,⏳ Pendente,True
 Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Junho,90.34,⏳ Pendente,True
@@ -314,3 +314,4 @@ Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026.0,Junho,0.0,⏳ Pendent
 Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Junho,1200.0,⏳ Pendente,True
 Faculdade Patrick,Educação,Variável,Despesa,2026.0,Junho,250.0,⏳ Pendente,True
 Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Junho,283.0,⏳ Pendente,True
+1/3 Férias,Investimento,Variável,Despesa,2026.0,Junho,1380.83,✅ Pago,True
