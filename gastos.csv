@@ -171,18 +171,6 @@ Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026.0,Janeiro,300.0,✅ Pag
 Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Janeiro,2244.65,✅ Pago,True
 Faculdade Patrick,Educação,Variável,Despesa,2026.0,Janeiro,250.0,✅ Pago,True
 Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Janeiro,283.0,✅ Pago,True
-Salário mensal,salário,Fixo,Receita,2026.0,Agosto,0.0,⏳ Pendente,True
-Investimento,Investimento,Fixo,Despesa,2026.0,Agosto,0.0,⏳ Pendente,True
-Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Agosto,0.0,⏳ Pendente,True
-Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Agosto,0.0,⏳ Pendente,True
-Conta de água,Contas domésticas,Fixo,Despesa,2026.0,Agosto,50.0,⏳ Pendente,True
-Condominio,Contas domésticas,Fixo,Despesa,2026.0,Agosto,260.0,⏳ Pendente,True
-Internet,Contas domésticas,Fixo,Despesa,2026.0,Agosto,99.0,⏳ Pendente,True
-Financ. Caixa,Contas domésticas,Fixo,Despesa,2026.0,Agosto,470.0,⏳ Pendente,True
-Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026.0,Agosto,300.0,⏳ Pendente,True
-Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Agosto,0.0,⏳ Pendente,True
-Faculdade Patrick,Educação,Variável,Despesa,2026.0,Agosto,250.0,⏳ Pendente,True
-Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Agosto,283.0,⏳ Pendente,True
 Salário mensal,salário,Fixo,Receita,2026.0,Setembro,0.0,⏳ Pendente,True
 Investimento,Investimento,Fixo,Despesa,2026.0,Setembro,0.0,⏳ Pendente,True
 Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Setembro,0.0,⏳ Pendente,True
@@ -318,3 +306,15 @@ Faculdade Patrick,Educação,Variável,Despesa,2026.0,Julho,237.5,✅ Pago,True
 Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Julho,283.0,✅ Pago,True
 restituição Imposto de renda,salário,Variável,Receita,2026.0,Julho,1382.81,✅ Pago,
 restituição imposto de renda,salário,Variável,Despesa,2026.0,Julho,1382.81,✅ Pago,
+Salário mensal,salário,Fixo,Receita,2026.0,Agosto,0.0,⏳ Pendente,True
+Investimento,Investimento,Fixo,Despesa,2026.0,Agosto,0.0,⏳ Pendente,True
+Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Agosto,0.0,⏳ Pendente,True
+Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Agosto,0.0,⏳ Pendente,True
+Conta de água,Contas domésticas,Fixo,Despesa,2026.0,Agosto,50.0,⏳ Pendente,True
+Condominio,Contas domésticas,Fixo,Despesa,2026.0,Agosto,260.0,⏳ Pendente,True
+Internet,Contas domésticas,Fixo,Despesa,2026.0,Agosto,99.0,⏳ Pendente,True
+Financ. Caixa,Contas domésticas,Fixo,Despesa,2026.0,Agosto,470.0,⏳ Pendente,True
+Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026.0,Agosto,0.0,⏳ Pendente,True
+Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Agosto,1500.0,⏳ Pendente,True
+Faculdade Patrick,Educação,Variável,Despesa,2026.0,Agosto,250.0,⏳ Pendente,True
+Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Agosto,283.0,⏳ Pendente,True
