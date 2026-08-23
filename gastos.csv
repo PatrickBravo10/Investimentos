@@ -269,24 +269,6 @@ Financ. Caixa,Contas domésticas,Fixo,Despesa,2026.0,Agosto,470.0,✅ Pago,True
 Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Agosto,2239.65,✅ Pago,True
 Faculdade Patrick,Educação,Variável,Despesa,2026.0,Agosto,237.0,✅ Pago,True
 Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Agosto,283.0,✅ Pago,True
-Salário mensal,salário,Fixo,Receita,2026.0,Setembro,4142.0,✅ Pago,True
-Investimento,Investimento,Fixo,Despesa,2026.0,Setembro,1300.0,⏳ Pendente,True
-Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Setembro,302.0,⏳ Pendente,True
-Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Setembro,107.0,⏳ Pendente,True
-Conta de água,Contas domésticas,Fixo,Despesa,2026.0,Setembro,50.0,⏳ Pendente,True
-Condominio,Contas domésticas,Fixo,Despesa,2026.0,Setembro,270.0,⏳ Pendente,True
-Internet,Contas domésticas,Fixo,Despesa,2026.0,Setembro,99.0,⏳ Pendente,True
-Financ. Caixa,Contas domésticas,Fixo,Despesa,2026.0,Setembro,470.0,⏳ Pendente,True
-Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026.0,Setembro,0.0,⏳ Pendente,True
-Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Setembro,2600.0,⏳ Pendente,True
-Faculdade Patrick,Educação,Variável,Despesa,2026.0,Setembro,250.0,⏳ Pendente,True
-Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Setembro,283.0,⏳ Pendente,True
-Saque aniversario,Investimento,Variável,Receita,2026.0,Setembro,433.0,✅ Pago,
-1/3 férias,Contas domésticas,Variável,Receita,2026.0,Setembro,820.0,✅ Pago,
-adiant 13 sal,Contas domésticas,Variável,Receita,2026.0,Setembro,3693.86,✅ Pago,
-roupa shoppee,Lazer,Variável,Despesa,2026.0,Setembro,354.91,✅ Pago,
-Aluguel + condo - Manai SP,Contas domésticas,Fixo,Despesa,2026.0,Setembro,3500.0,,True
-Custos AirbNB + Carro alugado,Obra casa,Fixo,Despesa,2026.0,Setembro,400.0,,True
 Salário mensal,salário,Fixo,Receita,2026.0,Outubro,0.0,⏳ Pendente,True
 Investimento,Investimento,Fixo,Despesa,2026.0,Outubro,0.0,⏳ Pendente,True
 Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Outubro,0.0,⏳ Pendente,True
@@ -332,3 +314,21 @@ Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Dezembro,28
 Aluguel + Condo - Manai SP,Aluguel,Fixo,Despesa,2026.0,Dezembro,3500.0,⏳ Pendente,True
 Custos AirbNB + Carro alugado,Obra casa,Variável,Despesa,2026.0,Dezembro,400.0,⏳ Pendente,True
 Ajuda de custo Mudanca,Contas domésticas,Variável,Receita,2026.0,Dezembro,1250.0,⏳ Pendente,True
+Salário mensal,salário,Fixo,Receita,2026.0,Setembro,4142.0,✅ Pago,True
+Investimento,Investimento,Fixo,Despesa,2026.0,Setembro,1300.0,⏳ Pendente,True
+Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Setembro,302.0,⏳ Pendente,True
+Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Setembro,107.0,⏳ Pendente,True
+Conta de água,Contas domésticas,Fixo,Despesa,2026.0,Setembro,50.0,⏳ Pendente,True
+Condominio,Contas domésticas,Fixo,Despesa,2026.0,Setembro,270.0,⏳ Pendente,True
+Internet,Contas domésticas,Fixo,Despesa,2026.0,Setembro,99.0,⏳ Pendente,True
+Financ. Caixa,Contas domésticas,Fixo,Despesa,2026.0,Setembro,470.0,⏳ Pendente,True
+Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026.0,Setembro,0.0,⏳ Pendente,True
+Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Setembro,2600.0,⏳ Pendente,True
+Faculdade Patrick,Educação,Variável,Despesa,2026.0,Setembro,250.0,⏳ Pendente,True
+Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Setembro,283.0,⏳ Pendente,True
+Saque aniversario,Investimento,Variável,Receita,2026.0,Setembro,433.0,✅ Pago,
+1/3 férias,Contas domésticas,Variável,Receita,2026.0,Setembro,820.0,✅ Pago,
+adiant 13 sal,Contas domésticas,Variável,Receita,2026.0,Setembro,3693.86,✅ Pago,
+roupa shoppee,Lazer,Variável,Despesa,2026.0,Setembro,354.91,✅ Pago,
+Aluguel + condo - Manai SP,Contas domésticas,Fixo,Despesa,2026.0,Setembro,2000.0,,True
+Custos AirbNB + Carro alugado,Obra casa,Fixo,Despesa,2026.0,Setembro,400.0,,True
