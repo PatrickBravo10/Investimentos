@@ -171,18 +171,6 @@ Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026.0,Janeiro,300.0,✅ Pag
 Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Janeiro,2244.65,✅ Pago,True
 Faculdade Patrick,Educação,Variável,Despesa,2026.0,Janeiro,250.0,✅ Pago,True
 Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Janeiro,283.0,✅ Pago,True
-Salário mensal,salário,Fixo,Receita,2026.0,Novembro,0.0,⏳ Pendente,True
-Investimento,Investimento,Fixo,Despesa,2026.0,Novembro,0.0,⏳ Pendente,True
-Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Novembro,0.0,⏳ Pendente,True
-Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Novembro,0.0,⏳ Pendente,True
-Conta de água,Contas domésticas,Fixo,Despesa,2026.0,Novembro,50.0,⏳ Pendente,True
-Condominio,Contas domésticas,Fixo,Despesa,2026.0,Novembro,260.0,⏳ Pendente,True
-Internet,Contas domésticas,Fixo,Despesa,2026.0,Novembro,99.0,⏳ Pendente,True
-Financ. Caixa,Contas domésticas,Fixo,Despesa,2026.0,Novembro,470.0,⏳ Pendente,True
-Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026.0,Novembro,300.0,⏳ Pendente,True
-Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Novembro,0.0,⏳ Pendente,True
-Faculdade Patrick,Educação,Variável,Despesa,2026.0,Novembro,250.0,⏳ Pendente,True
-Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Novembro,283.0,⏳ Pendente,True
 Salário mensal,salário,Fixo,Receita,2027.0,Janeiro,0.0,⏳ Pendente,True
 Investimento,Investimento,Fixo,Despesa,2027.0,Janeiro,0.0,⏳ Pendente,True
 Conta de Luz,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,0.0,⏳ Pendente,True
@@ -324,3 +312,16 @@ Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Outubro,
 Faculdade Patrick,Educação,Variável,Despesa,2026.0,Outubro,250.0,⏳ Pendente,True
 Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Outubro,283.0,⏳ Pendente,True
 Aluguel + Condo - Manai SP,Contas domésticas,Fixo,Despesa,2026.0,Outubro,3500.0,⏳ Pendente,True
+Salário mensal,salário,Fixo,Receita,2026.0,Novembro,0.0,⏳ Pendente,True
+Investimento,Investimento,Fixo,Despesa,2026.0,Novembro,0.0,⏳ Pendente,True
+Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Novembro,0.0,⏳ Pendente,True
+Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Novembro,0.0,⏳ Pendente,True
+Conta de água,Contas domésticas,Fixo,Despesa,2026.0,Novembro,50.0,⏳ Pendente,True
+Condominio,Contas domésticas,Fixo,Despesa,2026.0,Novembro,260.0,⏳ Pendente,True
+Internet,Contas domésticas,Fixo,Despesa,2026.0,Novembro,99.0,⏳ Pendente,True
+Financ. Caixa,Contas domésticas,Fixo,Despesa,2026.0,Novembro,470.0,⏳ Pendente,True
+Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026.0,Novembro,300.0,⏳ Pendente,True
+Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Novembro,0.0,⏳ Pendente,True
+Faculdade Patrick,Educação,Variável,Despesa,2026.0,Novembro,250.0,⏳ Pendente,True
+Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Novembro,283.0,⏳ Pendente,True
+Aluguel + Condo - Manai SP,Aluguel,Fixo,Despesa,2026.0,Novembro,3500.0,⏳ Pendente,True
