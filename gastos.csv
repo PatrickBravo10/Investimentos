@@ -315,7 +315,7 @@ Aluguel + Condo - Manai SP,Aluguel,Fixo,Despesa,2026.0,Dezembro,3500.0,⏳ Pende
 Custos AirbNB + Carro alugado,Obra casa,Variável,Despesa,2026.0,Dezembro,400.0,⏳ Pendente,True
 Ajuda de custo Mudanca,Contas domésticas,Variável,Receita,2026.0,Dezembro,1250.0,⏳ Pendente,True
 Salário mensal,salário,Fixo,Receita,2026.0,Setembro,4142.0,✅ Pago,True
-Investimento,Investimento,Fixo,Despesa,2026.0,Setembro,1300.0,✅ Pago,True
+Investimento,Investimento,Fixo,Despesa,2026.0,Setembro,4300.0,✅ Pago,True
 Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Setembro,307.0,✅ Pago,True
 Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Setembro,113.14,✅ Pago,True
 Conta de água,Contas domésticas,Fixo,Despesa,2026.0,Setembro,50.0,✅ Pago,True
