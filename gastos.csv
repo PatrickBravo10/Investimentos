@@ -318,7 +318,7 @@ Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Novembro,28
 Aluguel + Condo - Manai SP,Aluguel,Fixo,Despesa,2026.0,Novembro,3500.0,⏳ Pendente,True
 Custos AirbNB + Carro alugado,Obra casa,Variável,Despesa,2026.0,Novembro,400.0,⏳ Pendente,True
 Ajuda de custo Mudanca,Contas domésticas,Variável,Receita,2026.0,Novembro,1250.0,⏳ Pendente,True
-Salário mensal,salário,Fixo,Receita,2026.0,Outubro,7862.7,⏳ Pendente,True
+Salário mensal,salário,Fixo,Receita,2026.0,Outubro,7862.7,✅ Pago,True
 Investimento,Investimento,Fixo,Despesa,2026.0,Outubro,0.0,⏳ Pendente,True
 Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Outubro,413.64,⏳ Pendente,True
 Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Outubro,90.0,⏳ Pendente,True
