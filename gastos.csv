@@ -321,7 +321,7 @@ Ajuda de custo Mudanca,Contas domésticas,Variável,Receita,2026.0,Novembro,1250
 Salário mensal,salário,Fixo,Receita,2026.0,Outubro,7862.7,✅ Pago,True
 Investimento,Investimento,Fixo,Despesa,2026.0,Outubro,0.0,⏳ Pendente,True
 Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Outubro,413.96,✅ Pago,True
-Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Outubro,90.0,⏳ Pendente,True
+Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Outubro,90.0,✅ Pago,True
 Conta de água,Contas domésticas,Fixo,Despesa,2026.0,Outubro,52.89,✅ Pago,True
 Condominio,Contas domésticas,Fixo,Despesa,2026.0,Outubro,271.5,✅ Pago,True
 Internet,Contas domésticas,Fixo,Despesa,2026.0,Outubro,99.0,⏳ Pendente,True
