@@ -332,6 +332,6 @@ Faculdade Patrick,Educação,Variável,Despesa,2026.0,Outubro,250.0,✅ Pago,Tru
 Lava e seca,Obra casa,Variável,Despesa,2026.0,Outubro,0.0,⏳ Pendente,True
 Aluguel + Condo - Manai SP,Aluguel,Fixo,Despesa,2026.0,Outubro,3500.0,✅ Pago,True
 Custos AirbNB + Carro alugado,Obra casa,Variável,Despesa,2026.0,Outubro,412.18,✅ Pago,True
-Ajuda de custo Mudanca,Contas domésticas,Variável,Receita,2026.0,Outubro,1250.0,✅ Pago,True
+Ajuda de custo Mudanca,Contas domésticas,Variável,Receita,2026.0,Outubro,1250.0,⏳ Pendente,True
 Complemento aux mudanda,Contas domésticas,Variável,Receita,2026.0,Outubro,409.4,⏳ Pendente,
 Aux Tranferencia,salário,Variável,Receita,2026.0,Outubro,16366.4,⏳ Pendente,
