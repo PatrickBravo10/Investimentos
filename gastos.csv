@@ -322,7 +322,7 @@ Salário mensal,salário,Fixo,Receita,2026.0,Outubro,7862.7,✅ Pago,True
 Investimento,Investimento,Fixo,Despesa,2026.0,Outubro,0.0,⏳ Pendente,True
 Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Outubro,413.96,✅ Pago,True
 Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Outubro,90.0,⏳ Pendente,True
-Conta de água,Contas domésticas,Fixo,Despesa,2026.0,Outubro,50.0,⏳ Pendente,True
+Conta de água,Contas domésticas,Fixo,Despesa,2026.0,Outubro,52.89,✅ Pago,True
 Condominio,Contas domésticas,Fixo,Despesa,2026.0,Outubro,271.5,✅ Pago,True
 Internet,Contas domésticas,Fixo,Despesa,2026.0,Outubro,99.0,⏳ Pendente,True
 Financ. Caixa,Contas domésticas,Fixo,Despesa,2026.0,Outubro,470.0,✅ Pago,True
@@ -331,6 +331,6 @@ Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Outubro,
 Faculdade Patrick,Educação,Variável,Despesa,2026.0,Outubro,250.0,⏳ Pendente,True
 Lava e seca,Obra casa,Variável,Despesa,2026.0,Outubro,0.0,⏳ Pendente,True
 Aluguel + Condo - Manai SP,Aluguel,Fixo,Despesa,2026.0,Outubro,3500.0,⏳ Pendente,True
-Custos AirbNB + Carro alugado,Obra casa,Variável,Despesa,2026.0,Outubro,412.18,⏳ Pendente,True
+Custos AirbNB + Carro alugado,Obra casa,Variável,Despesa,2026.0,Outubro,412.18,✅ Pago,True
 Ajuda de custo Mudanca,Contas domésticas,Variável,Receita,2026.0,Outubro,1250.0,⏳ Pendente,True
 Complemento aux mudanda,Contas domésticas,Variável,Receita,2026.0,Outubro,409.4,⏳ Pendente,
