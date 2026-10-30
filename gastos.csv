@@ -318,7 +318,7 @@ Custos AirbNB + Carro alugado,Obra casa,Variável,Despesa,2026.0,Outubro,412.18,
 Conta de Luz SP,Contas domésticas,Fixo,Despesa,2026.0,Outubro,67.3,✅ Pago,
 Salário mensal,salário,Fixo,Receita,2026.0,Novembro,6200.0,✅ Pago,True
 Investimento,Investimento,Fixo,Despesa,2026.0,Novembro,0.0,⏳ Pendente,True
-Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Novembro,71.0,⏳ Pendente,True
+Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Novembro,71.0,✅ Pago,True
 Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Novembro,130.0,✅ Pago,True
 Conta de água,Contas domésticas,Fixo,Despesa,2026.0,Novembro,50.0,✅ Pago,True
 Condominio,Contas domésticas,Fixo,Despesa,2026.0,Novembro,270.0,✅ Pago,True
