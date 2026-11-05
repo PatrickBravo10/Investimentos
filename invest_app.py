@@ -99,10 +99,28 @@ def engine_insights_300(df_gastos, df_inv, v_meta):
     return insights[:6]
 
 # --- 4. SISTEMA DE AUTENTICAÇÃO ---
-names = ["Patrick Bravo"]
-usernames = ["admin"]
-passwords = ["12345"] 
-authenticator = stauth.Authenticate({"usernames": {usernames[0]: {"name": names[0], "password": passwords[0]}}}, "cookie_invest", "key_invest", 30)
+# Nenhuma credencial fica no código/repositório. Defina nos secrets do Streamlit:
+#   AUTH_USERNAME  = "admin"
+#   AUTH_NAME      = "Patrick Bravo"
+#   AUTH_PASSWORD  = "sua-senha-forte"      (texto puro ou hash bcrypt iniciando com $2b$)
+#   AUTH_COOKIE_KEY = "chave-aleatoria-longa-do-cookie"
+def _build_credentials():
+    sec = st.secrets
+    usuario = sec.get("AUTH_USERNAME", "admin")
+    nome = sec.get("AUTH_NAME", "Patrick Bravo")
+    senha = sec.get("AUTH_PASSWORD", "")
+    if not senha:
+        st.error("⚠️ Defina AUTH_PASSWORD nos secrets do Streamlit para liberar o acesso.")
+        st.stop()
+    senha_hash = senha if senha.startswith("$2") else stauth.Hasher.hash(senha)
+    return {"usernames": {usuario: {"name": nome, "password": senha_hash}}}
+
+authenticator = stauth.Authenticate(
+    _build_credentials(),
+    "cookie_invest",
+    st.secrets.get("AUTH_COOKIE_KEY", "key_invest"),
+    30,
+)
 authenticator.login(location="main")
 
 if st.session_state["authentication_status"]:
@@ -218,23 +236,26 @@ if st.session_state["authentication_status"]:
         gr_raw, gs_sha = get_git_file("gastos.csv")
         df_gastos = pd.read_csv(StringIO(gr_raw), on_bad_lines='skip') if gr_raw else pd.DataFrame(columns=["descricao","categoria","tipo_custo","fluxo","ano","mes","valor","status","recorrente"])
 
-        col_f1, col_f2, col_btn = st.columns([1, 1, 1])
-        with col_f1: ano_sel = st.selectbox("Filtrar Ano", [2024, 2025, 2026], index=2)
+        col_f1, col_f2 = st.columns(2)
+        anos_disponiveis = [2024, 2025, 2026, 2027, 2028]
+        ano_atual = datetime.now().year
+        with col_f1:
+            ano_sel = st.selectbox("Filtrar Ano", anos_disponiveis,
+                                   index=anos_disponiveis.index(ano_atual) if ano_atual in anos_disponiveis else 2)
         with col_f2: mes_sel = st.selectbox("Filtrar Mês", list(meses_map.keys()), index=datetime.now().month - 1)
         
         df_mes_caixa = df_gastos[(df_gastos["ano"] == ano_sel) & (df_gastos["mes"] == mes_sel)].copy()
 
         def salvar_caixa_total(df_para_salvar):
+            df_para_salvar = df_para_salvar.copy()
+            # Linhas novas herdam o ano/mês do filtro ativo, para não se perderem no arquivo
+            df_para_salvar["ano"] = ano_sel
+            df_para_salvar["mes"] = mes_sel
             df_para_salvar["valor"] = df_para_salvar["valor"].abs()
             df_outros = df_gastos[~((df_gastos["ano"] == ano_sel) & (df_gastos["mes"] == mes_sel))]
             df_final_caixa = pd.concat([df_outros, df_para_salvar], ignore_index=True)
             save_git_file("gastos.csv", df_final_caixa.to_csv(index=False), gs_sha, f"Save {mes_sel}")
             st.toast("✅ Dados Guardados com Sucesso!")
-
-        with col_btn:
-            st.write(" "); st.write(" ")
-            if st.button("💾 SALVAR ALTERAÇÕES (TOPO)", key="btn_topo_caixa", use_container_width=True):
-                salvar_caixa_total(st.session_state.mega_editor_fluxo); st.rerun()
 
         # KPIs do Mês
         df_pago = df_mes_caixa[df_mes_caixa["status"] == "✅ Pago"]
