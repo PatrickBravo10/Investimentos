@@ -449,15 +449,15 @@ Aluguel + Condo - Manai SP,Contas domésticas,Fixo,Despesa,2027.0,Dezembro,3500.
 Custos AirbNB + Carro alugado + máquina de lavar,Contas domésticas,Variável,Despesa,2027.0,Dezembro,723.05,⏳ Pendente,True
 Faculdade Patrick,Educação,Variável,Despesa,2027.0,Dezembro,250.0,⏳ Pendente,True
 Cartão de credito Carine,Cartão de crédito,Variável,Despesa,2027.0,Dezembro,200.0,⏳ Pendente,True
-Salário mensal,salário,Fixo,Receita,2027.0,Novembro,6100.0,✅ Pago,True
+Salário mensal,salário,Fixo,Receita,2027.0,Novembro,6100.0,⏳ Pendente,True
 Investimento,Investimento,Fixo,Despesa,2027.0,Novembro,0.0,⏳ Pendente,True
-Financ. Caixa,Contas domésticas,Fixo,Despesa,2027.0,Novembro,470.0,✅ Pago,True
-Conta de luz,Contas domésticas,Fixo,Despesa,2027.0,Novembro,100.0,✅ Pago,True
-Conta de água,Contas domésticas,Fixo,Despesa,2027.0,Novembro,50.0,✅ Pago,True
-Conta de gás,Contas domésticas,Fixo,Despesa,2027.0,Novembro,100.0,✅ Pago,True
-Condominio,Contas domésticas,Fixo,Despesa,2027.0,Novembro,270.0,✅ Pago,True
-Internet,Contas domésticas,Fixo,Despesa,2027.0,Novembro,99.0,✅ Pago,True
-Aluguel + Condo - Manai SP,Contas domésticas,Fixo,Despesa,2027.0,Novembro,3500.0,✅ Pago,True
-Custos AirbNB + Carro alugado + máquina de lavar,Contas domésticas,Variável,Despesa,2027.0,Novembro,723.05,✅ Pago,True
-Faculdade Patrick,Educação,Variável,Despesa,2027.0,Novembro,250.0,✅ Pago,True
-Cartão de credito Carine,Cartão de crédito,Variável,Despesa,2027.0,Novembro,200.0,✅ Pago,True
+Financ. Caixa,Contas domésticas,Fixo,Despesa,2027.0,Novembro,470.0,⏳ Pendente,True
+Conta de luz,Contas domésticas,Fixo,Despesa,2027.0,Novembro,100.0,⏳ Pendente,True
+Conta de água,Contas domésticas,Fixo,Despesa,2027.0,Novembro,50.0,⏳ Pendente,True
+Conta de gás,Contas domésticas,Fixo,Despesa,2027.0,Novembro,100.0,⏳ Pendente,True
+Condominio,Contas domésticas,Fixo,Despesa,2027.0,Novembro,270.0,⏳ Pendente,True
+Internet,Contas domésticas,Fixo,Despesa,2027.0,Novembro,99.0,⏳ Pendente,True
+Aluguel + Condo - Manai SP,Contas domésticas,Fixo,Despesa,2027.0,Novembro,3500.0,⏳ Pendente,True
+Custos AirbNB + Carro alugado + máquina de lavar,Contas domésticas,Variável,Despesa,2027.0,Novembro,723.05,⏳ Pendente,True
+Faculdade Patrick,Educação,Variável,Despesa,2027.0,Novembro,250.0,⏳ Pendente,True
+Cartão de credito Carine,Cartão de crédito,Variável,Despesa,2027.0,Novembro,200.0,⏳ Pendente,True
