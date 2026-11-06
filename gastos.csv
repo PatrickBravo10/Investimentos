@@ -341,3 +341,15 @@ Aluguel + Condo - Manai SP,Contas domésticas,Fixo,Despesa,2027.0,Fevereiro,3500
 Custos AirbNB + Carro alugado + máquina de lavar,Contas domésticas,Variável,Despesa,2027.0,Fevereiro,723.05,⏳ Pendente,True
 Faculdade Patrick,Educação,Variável,Despesa,2027.0,Fevereiro,250.0,⏳ Pendente,True
 Cartão de credito Carine,Cartão de crédito,Variável,Despesa,2027.0,Fevereiro,200.0,⏳ Pendente,True
+Salário mensal,salário,Fixo,Receita,2027.0,Março,6100.0,⏳ Pendente,True
+Investimento,Investimento,Fixo,Despesa,2027.0,Março,0.0,⏳ Pendente,True
+Financ. Caixa,Contas domésticas,Fixo,Despesa,2027.0,Março,470.0,⏳ Pendente,True
+Conta de luz,Contas domésticas,Fixo,Despesa,2027.0,Março,100.0,⏳ Pendente,True
+Conta de água,Contas domésticas,Fixo,Despesa,2027.0,Março,50.0,⏳ Pendente,True
+Conta de gás,Contas domésticas,Fixo,Despesa,2027.0,Março,100.0,⏳ Pendente,True
+Condominio,Contas domésticas,Fixo,Despesa,2027.0,Março,270.0,⏳ Pendente,True
+Internet,Contas domésticas,Fixo,Despesa,2027.0,Março,99.0,⏳ Pendente,True
+Aluguel + Condo - Manai SP,Contas domésticas,Fixo,Despesa,2027.0,Março,3500.0,⏳ Pendente,True
+Custos AirbNB + Carro alugado + máquina de lavar,Contas domésticas,Variável,Despesa,2027.0,Março,723.05,⏳ Pendente,True
+Faculdade Patrick,Educação,Variável,Despesa,2027.0,Março,250.0,⏳ Pendente,True
+Cartão de credito Carine,Cartão de crédito,Variável,Despesa,2027.0,Março,200.0,⏳ Pendente,True
