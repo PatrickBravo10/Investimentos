@@ -329,18 +329,15 @@ Faculdade Patrick,Educação,Variável,Despesa,2026.0,Dezembro,250.0,⏳ Pendent
 Aluguel + Condo - Manai SP,Aluguel,Fixo,Despesa,2026.0,Dezembro,3500.0,⏳ Pendente,True
 Custos AirbNB + Carro alugado,Obra casa,Variável,Despesa,2026.0,Dezembro,723.05,⏳ Pendente,True
 Emprestimo desafogar (RICO),Cartão de crédito,Variável,Despesa,2026.0,Dezembro,1423.09,⏳ Pendente,
-Investimento,Investimento,Fixo,Despesa,2027.0,Fevereiro,0.0,⏳ Pendente,True
-Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2027.0,Fevereiro,300.0,⏳ Pendente,True
-Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2027.0,Fevereiro,283.0,⏳ Pendente,True
-Salário mensal,salário,Fixo,Receita,2027.0,Fevereiro,6200.0,⏳ Pendente,True
-2º parcela - 13º Salário,salário,Variável,Receita,2027.0,Fevereiro,2200.0,⏳ Pendente,True
-Conta de Luz,Contas domésticas,Fixo,Despesa,2027.0,Fevereiro,100.0,⏳ Pendente,True
-Conta de gás,Contas domésticas,Fixo,Despesa,2027.0,Fevereiro,100.0,⏳ Pendente,True
-Conta de água,Contas domésticas,Fixo,Despesa,2027.0,Fevereiro,50.0,⏳ Pendente,True
-Condominio,Contas domésticas,Fixo,Despesa,2027.0,Fevereiro,260.0,⏳ Pendente,True
-Internet,Contas domésticas,Fixo,Despesa,2027.0,Fevereiro,99.0,⏳ Pendente,True
-Financ. Caixa,Contas domésticas,Fixo,Despesa,2027.0,Fevereiro,470.0,⏳ Pendente,True
 Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2027.0,Fevereiro,200.0,⏳ Pendente,True
 Faculdade Patrick,Educação,Variável,Despesa,2027.0,Fevereiro,250.0,⏳ Pendente,True
-Aluguel + Condo - Manai SP,Aluguel,Fixo,Despesa,2027.0,Fevereiro,3500.0,⏳ Pendente,True
 Custos AirbNB + Carro alugado,Obra casa,Variável,Despesa,2027.0,Fevereiro,776.79,⏳ Pendente,True
+Salário mensal,salário,Fixo,Receita,2027.0,Fevereiro,0.0,⏳ Pendente,True
+Investimento,Investimento,Fixo,Despesa,2027.0,Fevereiro,0.0,⏳ Pendente,True
+Financ. Caixa,Contas domésticas,Fixo,Despesa,2027.0,Fevereiro,470.0,⏳ Pendente,True
+Conta de luz,Contas domésticas,Fixo,Despesa,2027.0,Fevereiro,100.0,⏳ Pendente,True
+Conta de água,Contas domésticas,Fixo,Despesa,2027.0,Fevereiro,50.0,⏳ Pendente,True
+Conta de gás,Contas domésticas,Fixo,Despesa,2027.0,Fevereiro,100.0,⏳ Pendente,True
+Condominio,Contas domésticas,Fixo,Despesa,2027.0,Fevereiro,270.0,⏳ Pendente,True
+Internet,Contas domésticas,Fixo,Despesa,2027.0,Fevereiro,99.0,⏳ Pendente,True
+Aluguel + Condo - Manai SP,Contas domésticas,Fixo,Despesa,2027.0,Fevereiro,3500.0,⏳ Pendente,True
