@@ -171,17 +171,8 @@ Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2026.0,Janeiro,300.0,✅ Pag
 Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Janeiro,2244.65,✅ Pago,True
 Faculdade Patrick,Educação,Variável,Despesa,2026.0,Janeiro,250.0,✅ Pago,True
 Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2026.0,Janeiro,283.0,✅ Pago,True
-Salário mensal,salário,Fixo,Receita,2027.0,Janeiro,0.0,⏳ Pendente,True
 Investimento,Investimento,Fixo,Despesa,2027.0,Janeiro,0.0,⏳ Pendente,True
-Conta de Luz,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,0.0,⏳ Pendente,True
-Conta de gás,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,0.0,⏳ Pendente,True
-Conta de água,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,50.0,⏳ Pendente,True
-Condominio,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,260.0,⏳ Pendente,True
-Internet,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,99.0,⏳ Pendente,True
-Financ. Caixa,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,470.0,⏳ Pendente,True
 Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,300.0,⏳ Pendente,True
-Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2027.0,Janeiro,0.0,⏳ Pendente,True
-Faculdade Patrick,Educação,Variável,Despesa,2027.0,Janeiro,250.0,⏳ Pendente,True
 Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2027.0,Janeiro,283.0,⏳ Pendente,True
 Salário mensal,salário,Fixo,Receita,2026.0,Fevereiro,5827.32,✅ Pago,True
 Investimento,Investimento,Fixo,Despesa,2026.0,Fevereiro,1606.91,✅ Pago,True
@@ -326,3 +317,15 @@ Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Novembro
 Faculdade Patrick,Educação,Variável,Despesa,2026.0,Novembro,244.51,✅ Pago,True
 Aluguel + Condo - Manai SP,Aluguel,Fixo,Despesa,2026.0,Novembro,3500.0,✅ Pago,True
 Custos AirbNB + Carro alugado + máquina de lavar,Obra casa,Variável,Despesa,2026.0,Novembro,776.79,✅ Pago,True
+Salário mensal,salário,Fixo,Receita,2027.0,Janeiro,6200.0,⏳ Pendente,True
+2º parcela - 13º Salário,salário,Variável,Receita,2027.0,Janeiro,2200.0,⏳ Pendente,True
+Conta de Luz,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,100.0,⏳ Pendente,True
+Conta de gás,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,100.0,⏳ Pendente,True
+Conta de água,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,50.0,⏳ Pendente,True
+Condominio,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,260.0,⏳ Pendente,True
+Internet,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,99.0,⏳ Pendente,True
+Financ. Caixa,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,470.0,⏳ Pendente,True
+Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2027.0,Janeiro,200.0,⏳ Pendente,True
+Faculdade Patrick,Educação,Variável,Despesa,2027.0,Janeiro,250.0,⏳ Pendente,True
+Aluguel + Condo - Manai SP,Aluguel,Fixo,Despesa,2027.0,Janeiro,3500.0,⏳ Pendente,True
+Custos AirbNB + Carro alugado,Obra casa,Variável,Despesa,2027.0,Janeiro,776.79,⏳ Pendente,True
