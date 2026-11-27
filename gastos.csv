@@ -455,7 +455,7 @@ Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Dezembro,387.0,✅ Pago,Tru
 Conta de água,Contas domésticas,Fixo,Despesa,2026.0,Dezembro,50.0,✅ Pago,True
 Condominio,Contas domésticas,Fixo,Despesa,2026.0,Dezembro,270.0,✅ Pago,True
 Internet,Contas domésticas,Fixo,Despesa,2026.0,Dezembro,72.0,✅ Pago,True
-Financ. Caixa,Contas domésticas,Fixo,Despesa,2026.0,Dezembro,470.0,✅ Pago,True
+Financ. Caixa,Contas domésticas,Fixo,Despesa,2026.0,Dezembro,470.0,⏳ Pendente,True
 Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Dezembro,1005.0,✅ Pago,True
 Faculdade Patrick,Educação,Variável,Despesa,2026.0,Dezembro,250.0,✅ Pago,True
 Aluguel + Condo - Manai SP,Aluguel,Fixo,Despesa,2026.0,Dezembro,3800.0,✅ Pago,True
