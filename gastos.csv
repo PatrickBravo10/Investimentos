@@ -449,7 +449,7 @@ Custos AirbNB + Carro alugado + máquina de lavar,Contas domésticas,Variável,D
 Faculdade Patrick,Educação,Variável,Despesa,2027.0,Novembro,250.0,⏳ Pendente,True
 Cartão de credito Carine,Cartão de crédito,Variável,Despesa,2027.0,Novembro,200.0,⏳ Pendente,True
 Salário mensal,salário,Fixo,Receita,2026.0,Dezembro,6200.0,✅ Pago,True
-2º parcela - 13º Salário,salário,Variável,Receita,2026.0,Dezembro,2200.0,✅ Pago,True
+2º parcela - 13º Salário,salário,Variável,Receita,2026.0,Dezembro,2200.0,⏳ Pendente,True
 Conta de Luz,Contas domésticas,Fixo,Despesa,2026.0,Dezembro,250.0,✅ Pago,True
 Conta de gás,Contas domésticas,Fixo,Despesa,2026.0,Dezembro,387.0,✅ Pago,True
 Conta de água,Contas domésticas,Fixo,Despesa,2026.0,Dezembro,50.0,✅ Pago,True
@@ -460,4 +460,4 @@ Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2026.0,Dezembro
 Faculdade Patrick,Educação,Variável,Despesa,2026.0,Dezembro,250.0,✅ Pago,True
 Aluguel + Condo - Manai SP,Aluguel,Fixo,Despesa,2026.0,Dezembro,3800.0,✅ Pago,True
 Custos AirbNB + Carro alugado,Obra casa,Variável,Despesa,2026.0,Dezembro,723.05,✅ Pago,True
-Emprestimo desafogar (RICO),Cartão de crédito,Variável,Despesa,2026.0,Dezembro,500.0,✅ Pago,
+Emprestimo desafogar (RICO),Cartão de crédito,Variável,Despesa,2026.0,Dezembro,500.0,⏳ Pendente,
