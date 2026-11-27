@@ -447,14 +447,14 @@ Aluguel + Condo - Manai SP,Aluguel,Fixo,Despesa,2026.0,Dezembro,3800.0,✅ Pago,
 Custos AirbNB + Carro alugado,Obra casa,Variável,Despesa,2026.0,Dezembro,723.05,✅ Pago,True
 Emprestimo desafogar (RICO),Cartão de crédito,Variável,Despesa,2026.0,Dezembro,1000.0,⏳ Pendente,
 Adiant 13º salário (salvador),Contas domésticas,Variável,Receita,2026.0,Dezembro,738.0,✅ Pago,
-Salário mensal,salário,Fixo,Receita,2027.0,Janeiro,6200.0,⏳ Pendente,True
-Conta de Luz,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,100.0,⏳ Pendente,True
-Conta de gás,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,100.0,⏳ Pendente,True
-Conta de água,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,50.0,⏳ Pendente,True
-Condominio,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,260.0,⏳ Pendente,True
-Internet,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,99.0,⏳ Pendente,True
-Financ. Caixa,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,470.0,⏳ Pendente,True
-Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2027.0,Janeiro,850.0,⏳ Pendente,True
-Faculdade Patrick,Educação,Variável,Despesa,2027.0,Janeiro,250.0,⏳ Pendente,True
-Aluguel + Condo - Manai SP,Aluguel,Fixo,Despesa,2027.0,Janeiro,3500.0,⏳ Pendente,True
-Custos AirbNB + Carro alugado,Obra casa,Variável,Despesa,2027.0,Janeiro,776.79,⏳ Pendente,True
+Salário mensal,salário,Fixo,Receita,2027.0,Janeiro,6200.0,✅ Pago,True
+Conta de Luz,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,200.0,✅ Pago,True
+Conta de gás,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,200.0,✅ Pago,True
+Conta de água,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,50.0,✅ Pago,True
+Condominio,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,270.0,✅ Pago,True
+Internet,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,72.0,✅ Pago,True
+Financ. Caixa,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,470.0,✅ Pago,True
+Cartão de crédito Carine,Cartão de crédito,Variável,Despesa,2027.0,Janeiro,850.0,✅ Pago,True
+Faculdade Patrick,Educação,Variável,Despesa,2027.0,Janeiro,250.0,✅ Pago,True
+Aluguel + Condo - Manai SP,Aluguel,Fixo,Despesa,2027.0,Janeiro,3500.0,✅ Pago,True
+Custos AirbNB + Carro alugado,Obra casa,Variável,Despesa,2027.0,Janeiro,776.79,✅ Pago,True
