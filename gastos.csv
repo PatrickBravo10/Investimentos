@@ -447,11 +447,7 @@ Aluguel + Condo - Manai SP,Aluguel,Fixo,Despesa,2026.0,Dezembro,3800.0,✅ Pago,
 Custos AirbNB + Carro alugado,Obra casa,Variável,Despesa,2026.0,Dezembro,723.05,✅ Pago,True
 Emprestimo desafogar (RICO),Cartão de crédito,Variável,Despesa,2026.0,Dezembro,1000.0,⏳ Pendente,
 Adiant 13º salário (salvador),Contas domésticas,Variável,Receita,2026.0,Dezembro,738.0,✅ Pago,
-Investimento,Investimento,Fixo,Despesa,2027.0,Janeiro,0.0,⏳ Pendente,True
-Antec. Financ Caixa,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,300.0,⏳ Pendente,True
-Armário cozinha e fogão - sofá,Obra casa,Variável,Despesa,2027.0,Janeiro,283.0,⏳ Pendente,True
 Salário mensal,salário,Fixo,Receita,2027.0,Janeiro,6200.0,⏳ Pendente,True
-2º parcela - 13º Salário,salário,Variável,Receita,2027.0,Janeiro,2200.0,⏳ Pendente,True
 Conta de Luz,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,100.0,⏳ Pendente,True
 Conta de gás,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,100.0,⏳ Pendente,True
 Conta de água,Contas domésticas,Fixo,Despesa,2027.0,Janeiro,50.0,⏳ Pendente,True
